@@ -1,6 +1,6 @@
 import Homepage from "./pages/hero";
 import Category from "./pages/category";
-import Destinations from "./pages/destination";
+import Destinations from "./pages/destination/page";
 
 export default function Home() {
   return (

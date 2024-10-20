@@ -14,26 +14,38 @@ export default function Header() {
   return (
     <header>
       <div>
-      <nav className="flex justify-between items-center px-8 sm:px-8 lg:px-32 py-5">
+      <nav className="flex justify-between items-center px-4 sm:px-8 md:px-12 lg:px-48 py-3 sm:py-4 md:py-5">
 
           {/* Logo */}
-          <Link href="/" className="font-extrabold text-4xl">
-            jaadoo
+          <Link href="/" className="w-[90px] sm:w-[140px] md:w-[145px] lg:w-[170px]">
+            <img src="../images/logo.png" alt="" />
           </Link>
 
           {/* Hamburger menu for mobile */}
-          <div className="sm:hidden">
-            <button onClick={toggleMenu} className="text-3xl">
+          <div className="md:hidden flex items-center space-x-3 sm:space-x-7">
+            <ul className=" flex justify-start space-x-2 sm:space-x-5">
+            <li>
+                <Link href="./Login" className="hover:underline hover:text-red-500 text-xs sm:text-lg">
+                  Login
+                </Link>
+              </li>
+              <li>
+                <Link href="./SignUp" className="outline-none rounded-e outline-black hover:text-red-500 hover:outline-red-500 text-xs sm:text-lg">
+                  Sign up
+                </Link>
+              </li>
+            </ul>
+            <button onClick={toggleMenu} className="text-2xl sm:text-3xl ">
               ☰
             </button>
           </div>
 
           {/* Nav Links */}
-          <div className={`hidden sm:flex space-x-12`}>
-            <ul className="flex items-center space-x-8">
+          <div className={`hidden  md:flex `}>
+            <ul className="flex items-center space-x-8 md:space-x-8 lg:space-x-16">
               <li>
-                <Link href="./Destination" className="hover:underline hover:text-red-500">
-                  Destination
+                <Link href="/pages/destination" className="hover:underline hover:text-red-500">
+                  Destinations
                 </Link>
               </li>
               <li>
@@ -60,14 +72,14 @@ export default function Header() {
                 <Link href="./SignUp" className="outline-none outline-black hover:text-red-500 hover:outline-red-500">
                   Sign up
                 </Link>
-              </li>
+                </li>
             </ul>
           </div>
         </nav>
 
         {/* Mobile Menu */}
         {isOpen && (
-          <div className="sm:hidden bg-amber-100">
+          <div className="md:hidden bg-amber-100">
             <ul className="flex flex-col text-center space-y-4 p-4">
               <li>
                 <Link href="./Destination" className="hover:underline hover:text-red-500">
@@ -89,16 +101,8 @@ export default function Header() {
                   Bookings
                 </Link>
               </li>
-              <li>
-                <Link href="./Login" className="hover:underline hover:text-red-500">
-                  Login
-                </Link>
-              </li>
-              <li>
-                <Link href="./SignUp" className="outline-none outline-black hover:text-red-500 hover:outline-red-500">
-                  Sign up
-                </Link>
-              </li>
+          
+              
             </ul>
           </div>
         )}
