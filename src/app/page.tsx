@@ -1,6 +1,7 @@
 import Homepage from "./pages/hero";
 import Category from "./pages/category";
 import Destinations from "./pages/destination/page";
+import Bookings from "./pages/Bookings";
 
 export default function Home() {
   return (
@@ -16,6 +17,10 @@ export default function Home() {
       {/* Destinations Section */}
       <div > 
         <Destinations />
+      </div>
+
+      <div>
+        <Bookings />
       </div>
     </div>
   );

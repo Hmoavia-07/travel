@@ -5,7 +5,7 @@ import Header from "../components/header";
 
 export default function Homepage() {
   return (
-    <div className="sm:h-screen sm:w-screen bg-yellow-50 md:bg-white bg-[url('/images/Decore.png')] bg-cover bg-center flex flex-col ">
+    <div className="lg:h-screen lg:w-screen bg-yellow-50 md:bg-white bg-[url('/images/Decore.png')] bg-cover bg-center flex flex-col ">
       {/* Header at the top */}
       <Header />
 
