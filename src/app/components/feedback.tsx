@@ -45,10 +45,10 @@ export default function Feedback() {
   }, []);
 
   return (
-    <div className="px-4 sm:px-12 md:px-24 py-16 flex flex-col lg:flex-row space-y-12 lg:space-y-0 lg:space-x-16 justify-between bg-gradient-to-br from-gray-50 to-blue-50">
+    <div className="px-4 sm:px-12 md:px-24 lg:px-48 py-16 flex flex-col lg:flex-row space-y-12 lg:space-y-0 lg:space-x-16 justify-between ">
       {/* Left Section */}
       <div className="lg:w-1/3">
-        <h1 className="text-blue-600 font-semibold text-lg tracking-wide">TESTIMONIALS</h1>
+        <h1 className="text-slate-600 font-semibold text-lg tracking-wide">TESTIMONIALS</h1>
         <h2 className="text-4xl md:text-5xl font-bold mt-4 text-gray-800 leading-tight">
           What People Say About Us.
         </h2>
@@ -68,7 +68,7 @@ export default function Feedback() {
             transition={{ duration: 0.5 }}
             className="bg-white shadow-2xl rounded-lg p-8 relative"
           >
-            <FaQuoteLeft className="text-4xl text-blue-200 absolute top-4 left-4" />
+            <FaQuoteLeft className="text-4xl text-slate-200 absolute top-4 left-4" />
             <img 
               src={testimonials[activeTestimonial].image} 
               alt={testimonials[activeTestimonial].name} 
@@ -78,27 +78,20 @@ export default function Feedback() {
               "{testimonials[activeTestimonial].feedback}"
             </p>
             <div className="text-center">
-              <h2 className="text-xl font-semibold text-gray-900">{testimonials[activeTestimonial].name}</h2>
-              <p className="text-blue-500">{testimonials[activeTestimonial].location}</p>
+              <h2 className="text-xl font-semibold text-gray-800">{testimonials[activeTestimonial].name}</h2>
+              <p className="text-slate-500">{testimonials[activeTestimonial].location}</p>
             </div>
           </motion.div>
         </AnimatePresence>
 
         {/* Navigation Arrows */}
-        <div className="flex justify-between absolute top-1/2 w-full transform -translate-y-1/2 px-4">
+        <div className="absolute w-full transform -translate-y-1/2 px-4">
           <button 
             onClick={prevTestimonial} 
-            className="p-2 bg-white rounded-full shadow-md hover:bg-gray-100 transition duration-300"
+            className="p-5 rounded-full shadow-md hover:bg-gray-100 transition duration-300"
             aria-label="Previous testimonial"
           >
-            <FaChevronLeft className="text-blue-500" />
-          </button>
-          <button 
-            onClick={nextTestimonial} 
-            className="p-2 bg-white rounded-full shadow-md hover:bg-gray-100 transition duration-300"
-            aria-label="Next testimonial"
-          >
-            <FaChevronRight className="text-blue-500" />
+            <FaChevronRight className="text-zinc-700" />
           </button>
         </div>
 
@@ -108,7 +101,7 @@ export default function Feedback() {
             <button
               key={index}
               className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                activeTestimonial === index ? 'bg-blue-600 w-6' : 'bg-gray-300'
+                activeTestimonial === index ? 'bg-slate-500 w-6' : 'bg-gray-300'
               }`}
               onClick={() => setActiveTestimonial(index)}
               aria-label={`Go to testimonial ${index + 1}`}
