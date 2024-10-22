@@ -2,7 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaQuoteLeft, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
+import { FaQuoteLeft, FaChevronRight } from 'react-icons/fa';
+import Image from 'next/image';
 
 export default function Feedback() {
   const [activeTestimonial, setActiveTestimonial] = useState(0);
@@ -42,10 +43,10 @@ export default function Feedback() {
   useEffect(() => {
     const interval = setInterval(nextTestimonial, 5000);
     return () => clearInterval(interval);
-  }, []);
+  }, [nextTestimonial]);
 
   return (
-    <div className="px-4 sm:px-12 md:px-24 lg:px-48 py-16 flex flex-col lg:flex-row space-y-12 lg:space-y-0 lg:space-x-16 justify-between ">
+    <div className="px-4 sm:px-12 md:px-24 lg:px-48 py-16 flex flex-col lg:flex-row space-y-12 lg:space-y-0 lg:space-x-16 justify-between">
       {/* Left Section */}
       <div className="lg:w-1/3">
         <h1 className="text-slate-600 font-semibold text-lg tracking-wide">TESTIMONIALS</h1>
@@ -69,13 +70,15 @@ export default function Feedback() {
             className="bg-white shadow-2xl rounded-lg p-8 relative"
           >
             <FaQuoteLeft className="text-4xl text-slate-200 absolute top-4 left-4" />
-            <img 
+            <Image 
               src={testimonials[activeTestimonial].image} 
               alt={testimonials[activeTestimonial].name} 
+              width={96} // specify width
+              height={96} // specify height
               className="w-24 h-24 rounded-full border-4 border-blue-100 shadow-lg mb-6 mx-auto object-cover"
             />
             <p className="text-gray-700 font-medium text-lg text-center mb-6">
-              "{testimonials[activeTestimonial].feedback}"
+              &quot;{testimonials[activeTestimonial].feedback}&quot;
             </p>
             <div className="text-center">
               <h2 className="text-xl font-semibold text-gray-800">{testimonials[activeTestimonial].name}</h2>
