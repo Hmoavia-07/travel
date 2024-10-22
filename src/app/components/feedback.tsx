@@ -1,6 +1,6 @@
-'use client'
+'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaQuoteLeft, FaChevronRight } from 'react-icons/fa';
 import Image from 'next/image';
@@ -32,9 +32,10 @@ export default function Feedback() {
     },
   ];
 
-  const nextTestimonial = () => {
+  // Wrap nextTestimonial in useCallback to memoize it
+  const nextTestimonial = useCallback(() => {
     setActiveTestimonial((prev) => (prev + 1) % testimonials.length);
-  };
+  }, [testimonials.length]);
 
   const prevTestimonial = () => {
     setActiveTestimonial((prev) => (prev - 1 + testimonials.length) % testimonials.length);
@@ -43,7 +44,7 @@ export default function Feedback() {
   useEffect(() => {
     const interval = setInterval(nextTestimonial, 5000);
     return () => clearInterval(interval);
-  }, [nextTestimonial]);
+  }, [nextTestimonial]); // Add nextTestimonial as a dependency to useEffect
 
   return (
     <div className="px-4 sm:px-12 md:px-24 lg:px-48 py-16 flex flex-col lg:flex-row space-y-12 lg:space-y-0 lg:space-x-16 justify-between">
@@ -54,7 +55,7 @@ export default function Feedback() {
           What People Say About Us.
         </h2>
         <p className="mt-6 text-gray-600">
-          Discover why our clients love working with us. Read their experiences and see how we've helped them achieve their goals.
+          Discover why our clients love working with us. Read their experiences and see how we&apos;ve helped them achieve their goals.
         </p>
       </div>
 
@@ -70,9 +71,9 @@ export default function Feedback() {
             className="bg-white shadow-2xl rounded-lg p-8 relative"
           >
             <FaQuoteLeft className="text-4xl text-slate-200 absolute top-4 left-4" />
-            <Image 
-              src={testimonials[activeTestimonial].image} 
-              alt={testimonials[activeTestimonial].name} 
+            <Image
+              src={testimonials[activeTestimonial].image}
+              alt={testimonials[activeTestimonial].name}
               width={96} // specify width
               height={96} // specify height
               className="w-24 h-24 rounded-full border-4 border-blue-100 shadow-lg mb-6 mx-auto object-cover"
@@ -89,8 +90,8 @@ export default function Feedback() {
 
         {/* Navigation Arrows */}
         <div className="absolute w-full transform -translate-y-1/2 px-4">
-          <button 
-            onClick={prevTestimonial} 
+          <button
+            onClick={prevTestimonial}
             className="p-5 rounded-full shadow-md hover:bg-gray-100 transition duration-300"
             aria-label="Previous testimonial"
           >
