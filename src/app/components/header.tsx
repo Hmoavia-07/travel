@@ -22,7 +22,7 @@ export default function Header() {
           </Link>
 
           {/* Hamburger menu for mobile */}
-          <div className="md:hidden flex items-center space-x-3 sm:space-x-7">
+          <div className="md:hidden flex items-center space-x-4 sm:space-x-7">
             <ul className=" flex justify-start space-x-2 sm:space-x-5">
             <li>
                 <Link href="./Login" className="hover:underline hover:text-red-500 text-xs sm:text-lg">

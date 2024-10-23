@@ -19,8 +19,8 @@ export default function Destinations() {
             </div>
 
             {/* Cards */}
-            <div className="container mx-auto px-4 sm:px-12 md:px-28 lg:px-64 ">
-                <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-8 md:gap-11 lg:gap-14">
+            <div className="container mx-auto px-4 sm:px-12 md:px-16 lg:px-60 ">
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 sm:gap-8 md:gap-11 lg:gap-14">
                     {destinations.map((destination, index) => (
                         <div key={index} className="bg-white rounded-lg shadow-lg overflow-hidden transition-transform duration-300 hover:scale-110">
                             <div className="relative h-48 sm:h-56 md:h-64 lg:h-80 ">

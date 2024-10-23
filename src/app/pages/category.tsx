@@ -10,7 +10,7 @@ export default function Category() {
       </div>
       {/* Card Container */}
       <div className="flex flex-wrap justify-center px-4 sm:px10 md:px-20">
-        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5 md:gap-7 lg:gap-10">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-5 md:gap-7 lg:gap-10">
         {/* Card 1 */}
         <div className="md:bg-slate-50 p-2 md:p-6 sm:p-3 text-center flex-1 min-w-[100px] max-w-[150px] sm:min-w-[150px] sm:max-w-[200px] md:min-w-[200px] md:max-w-[250px] lg:min-w-[250px] lg:max-w-[250px]">
           <div className="hover:bg-white bg-orange-50 md:bg-gray-100 shadow-xl rounded-b-3xl p-3 text-center transition-transform transform hover:scale-105">
