@@ -24,19 +24,17 @@ const Footer = () => {
           <div className="text-center">
             <h4 className="text-lg sm:text-xl sm:font-bold font-semibold mb-2 sm:mb-3 md:mb-4">Contact</h4>
             <nav className="flex flex-col sm:space-y-2 space-y-1">
-              <Link href="/about" className="text-sm sm:text-lg">Help/FAQ</Link>
+              <Link href="/faq" className="text-sm sm:text-lg">Help/FAQ</Link>
               <Link href="/contact" className="text-sm sm:text-lg">Press</Link>
-              <Link href="/faq" className="text-sm sm:text-lg">Affilates</Link>
-             
+              <Link href="/about" className="text-sm sm:text-lg">Affiliates</Link>
             </nav>
-          </div >
+          </div>
           <div className="text-center">
             <h4 className="text-lg sm:text-xl sm:font-bold font-semibold mb-2 sm:mb-3 md:mb-4">More</h4>
             <nav className="flex flex-col sm:space-y-2 space-y-1">
-              <Link href="/about" className="text-sm sm:text-lg">AirFees</Link>
-              <Link href="/contact" className="text-sm sm:text-lg">Airline</Link>
-              <Link href="/faq" className="text-sm sm:text-lg">faretips</Link>
-             
+              <Link href="/flights" className="text-sm sm:text-lg">Air Fees</Link>
+              <Link href="/flights" className="text-sm sm:text-lg">Airline</Link>
+              <Link href="/faq" className="text-sm sm:text-lg">Fare Tips</Link>
             </nav>
           </div>
           </div>

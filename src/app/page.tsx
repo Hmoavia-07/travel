@@ -1,29 +1,30 @@
-import Homepage from "./pages/hero";
-import Category from "./pages/category";
-import Destinations from "./pages/destination/page";
-import Bookings from "./pages/Bookings";
+import Homepage from "./sections/hero";
+import Category from "./sections/category";
+import DestinationsSection from "./components/destinations";
+import Bookings from "./sections/Bookings";
 import Feedback from "./components/feedback";
 
 export default function Home() {
   return (
-    <div >
+    <div className="overflow-x-hidden">
       {/* Homepage Section */}
       <Homepage />
       
       {/* Category Section */}
-      <div> 
+      <div id="services"> 
         <Category />
       </div>
 
       {/* Destinations Section */}
-      <div > 
-        <Destinations />
+      <div id="destinations"> 
+        <DestinationsSection />
       </div>
 
-      <div>
+      <div id="bookings">
         <Bookings />
       </div>
-      <div>
+
+      <div id="testimonials">
        <Feedback />
       </div>
     </div>
