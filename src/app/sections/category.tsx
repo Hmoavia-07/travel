@@ -4,225 +4,214 @@ import React, { useState } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { IconDefinition, faCloudSun, faPlane, faCalendarAlt, faCog, faCheck, faArrowRight, faTimes, faSun, faCloudRain, faWind, faCompass, faTicketAlt } from "@fortawesome/free-solid-svg-icons";
+import {
+  IconDefinition,
+  faCloudSun,
+  faPlane,
+  faCalendarAlt,
+  faSlidersH,
+  faSun,
+  faCloudRain,
+  faCompass,
+  faCheck,
+  faArrowRight,
+  faTimes,
+  faTicketAlt
+} from "@fortawesome/free-solid-svg-icons";
 
 interface ServiceData {
   id: string;
   icon: IconDefinition;
   image?: string;
-  badge: string;
-  badgeColor: string;
+  categoryNumber: string;
+  accentGradient: string;
   glowColor: string;
-  accentBg: string;
   title: string;
-  subtitle: string;
-  desc: string;
-  features: string[];
-  stats: { label: string; value: string };
-  modalDetails: {
+  shortDesc: string;
+  keyFeature: string;
+  stats: string;
+  details: {
     headline: string;
     description: string;
-    highlights: { title: string; desc: string }[];
-    interactiveType: 'weather' | 'flights' | 'events' | 'customizer';
+    highlights: string[];
   };
 }
 
 export default function Category() {
-  const [selectedService, setSelectedService] = useState<ServiceData | null>(null);
+  const [activeTab, setActiveTab] = useState<string>("weather");
   const [activeWeatherCity, setActiveWeatherCity] = useState<'rome' | 'paris' | 'tokyo' | 'bali'>('rome');
-  const [customStyle, setCustomStyle] = useState('Luxury Escape');
-  const [customDuration, setCustomDuration] = useState('10 Days');
-  const [customSubmitted, setCustomSubmitted] = useState(false);
+  const [flightOrigin, setFlightOrigin] = useState('New York (JFK)');
+  const [customStyle, setCustomStyle] = useState('Luxury Discovery');
+  const [customDays, setCustomDays] = useState('10 Days');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [customPlanSaved, setCustomPlanSaved] = useState(false);
 
   const services: ServiceData[] = [
     {
       id: "weather",
       icon: faCloudSun,
       image: "/images/service-icon-1.svg",
-      badge: "Real-time Climate",
-      badgeColor: "bg-orange-50 text-orange-600 border-orange-200",
-      glowColor: "from-amber-400/20 via-orange-300/10 to-transparent",
-      accentBg: "from-amber-500 to-orange-500",
+      categoryNumber: "01",
+      accentGradient: "from-amber-500 to-orange-500",
+      glowColor: "bg-amber-400/20",
       title: "Calculated Weather",
-      subtitle: "Predictive Meteorological Intelligence",
-      desc: "Experience accurate, multi-satellite weather forecasting tailored to your exact travel dates and destinations.",
-      features: ["7-Day Predictive Radar", "Optimal Season Advisor", "Microclimate Alerts"],
-      stats: { label: "Accuracy", value: "99.4%" },
-      modalDetails: {
-        headline: "Real-Time Climate & Travel Intelligence",
-        description: "Never pack the wrong wardrobe or get caught in unexpected monsoon rains. Our travel platform computes hyper-local climate models across 120+ destinations.",
+      shortDesc: "Predictive multi-satellite climate models for optimal departure dates.",
+      keyFeature: "Microclimate Alerts",
+      stats: "99.4% Accuracy",
+      details: {
+        headline: "Predictive Meteorological Intelligence",
+        description: "Accurate climate modeling across 120+ destinations ensures you avoid monsoon shifts, heatwaves, and seasonal rain.",
         highlights: [
-          { title: "Precision Microclimate Forecasts", desc: "Monitors historical precipitation, wind chill, and hourly temperature shifts for every excursion." },
-          { title: "Smart Seasonal Matching", desc: "Recommends the exact weeks of the year with the highest sunny days and lowest humidity." },
-          { title: "Active Departure Alerts", desc: "Automated weather updates sent straight to your phone 48 hours before boarding." },
-        ],
-        interactiveType: 'weather',
-      },
+          "7-Day hyper-local radar forecasts",
+          "Seasonal optimal month recommendations",
+          "Automated weather alerts 48h prior to departure"
+        ]
+      }
     },
     {
       id: "flights",
       icon: faPlane,
       image: "/images/service-icon-2.svg",
-      badge: "Guaranteed Lowest Fares",
-      badgeColor: "bg-blue-50 text-blue-600 border-blue-200",
-      glowColor: "from-blue-400/20 via-cyan-300/10 to-transparent",
-      accentBg: "from-blue-600 to-cyan-500",
+      categoryNumber: "02",
+      accentGradient: "from-sky-500 to-blue-600",
+      glowColor: "bg-sky-400/20",
       title: "Best Flights",
-      subtitle: "Global Carrier Network",
-      desc: "Unlock negotiated partner rates on premium airlines with flexible rebooking and included baggage allowances.",
-      features: ["Direct Flight Prioritization", "Price Drop Protection", "Free Seat Selection"],
-      stats: { label: "Avg. Savings", value: "$320/trip" },
-      modalDetails: {
-        headline: "Seamless Flight Booking & Fare Defense",
-        description: "We partner directly with leading airline alliances (SkyTeam, Star Alliance, Oneworld) to secure unpublished group fares and prime departure times.",
+      shortDesc: "Negotiated alliance fares with zero hidden fees and free seat selection.",
+      keyFeature: "Direct Route Priority",
+      stats: "$320 Avg. Savings",
+      details: {
+        headline: "Global Partner Airline Network",
+        description: "Direct partnerships with Star Alliance, SkyTeam, and Oneworld bring unpublished group rates and priority rebooking.",
         highlights: [
-          { title: "Dynamic Route Optimization", desc: "Algorithms match the shortest flight paths and minimal layover durations." },
-          { title: "Zero Hidden Surcharges", desc: "Taxes, baggage fees, and cabin baggage are always clearly accounted for upfront." },
-          { title: "24/7 Disruption Assist", desc: "Immediate rebooking support in case of airline schedule delays or weather cancellations." },
-        ],
-        interactiveType: 'flights',
-      },
+          "Shortest layover route optimization",
+          "Baggage and cabin allowances included upfront",
+          "24/7 proactive flight disruption assistance"
+        ]
+      }
     },
     {
       id: "events",
       icon: faCalendarAlt,
       image: "/images/service-icon-3.svg",
-      badge: "Curated Experiences",
-      badgeColor: "bg-emerald-50 text-emerald-600 border-emerald-200",
-      glowColor: "from-emerald-400/20 via-teal-300/10 to-transparent",
-      accentBg: "from-emerald-500 to-teal-500",
+      categoryNumber: "03",
+      accentGradient: "from-emerald-500 to-teal-600",
+      glowColor: "bg-emerald-400/20",
       title: "Local Events",
-      subtitle: "Cultural VIP Access",
-      desc: "Immerse yourself in authentic regional culture with guaranteed access to seasonal festivals, shows, and culinary fairs.",
-      features: ["Skip-the-Line Museum Passes", "Private Local Guides", "Exclusive Gala Invitations"],
-      stats: { label: "Curated Events", value: "450+ Monthly" },
-      modalDetails: {
-        headline: "Exclusive Access to Festivals & Cultural Milestones",
-        description: "Travel isn't just about landmarks—it's about living the culture. We curate tickets and private passes to the world's most breathtaking annual spectacles.",
+      shortDesc: "VIP passes to sold-out regional festivals, culinary fairs, and private galas.",
+      keyFeature: "Skip-the-Line Passes",
+      stats: "450+ Monthly Events",
+      details: {
+        headline: "Immersive Cultural Access",
+        description: "Experience authentic regional life with curated tickets, licensed historian guides, and culinary vineyard tours.",
         highlights: [
-          { title: "Sold-Out Event Reservations", desc: "Priority allocation for Venice Carnival masquerades, Kyoto Cherry Blossom galas, and Broadway premieres." },
-          { title: "Verified Local Storytellers", desc: "Licensed resident historians and food connoisseurs guiding your small group tours." },
-          { title: "Bespoke Culinary Tastings", desc: "Reservations at Michelin-starred restaurants and hidden vineyard cellars." },
-        ],
-        interactiveType: 'events',
-      },
+          "Sold-out festival reservation allocations",
+          "Private local storytellers & food guides",
+          "Priority reservations at Michelin-starred spots"
+        ]
+      }
     },
     {
       id: "customization",
-      icon: faCog,
+      icon: faSlidersH,
       image: "/images/exp-shape.svg",
-      badge: "Tailored to You",
-      badgeColor: "bg-purple-50 text-purple-600 border-purple-200",
-      glowColor: "from-purple-400/20 via-pink-300/10 to-transparent",
-      accentBg: "from-purple-600 to-indigo-600",
+      categoryNumber: "04",
+      accentGradient: "from-purple-500 to-indigo-600",
+      glowColor: "bg-purple-400/20",
       title: "Customization",
-      subtitle: "Bespoke Concierge Design",
-      desc: "Every traveler is unique. Build a fully custom, day-by-day travel plan designed around your pacing, passions, and budget.",
-      features: ["Private Concierge Manager", "Adaptive Daily Pacing", "Flexible On-Trip Changes"],
-      stats: { label: "Satisfaction", value: "99.8%" },
-      modalDetails: {
-        headline: "Personalized Travel Architecture Built Around You",
-        description: "No cookie-cutter tour buses. Our senior travel designers map every hotel stay, private car transfer, and relaxing afternoon to your exact rhythm.",
+      shortDesc: "Bespoke day-by-day itineraries tailored to your rhythm, passions, and budget.",
+      keyFeature: "Adaptive Daily Pacing",
+      stats: "99.8% Satisfaction",
+      details: {
+        headline: "Tailored Concierge Travel Design",
+        description: "Every trip is unique. From private drivers to flexible on-trip adjustments, your itinerary flows seamlessly.",
         highlights: [
-          { title: "Dedicated Trip Concierge", desc: "One direct point of contact from your initial discovery call through your return home." },
-          { title: "Adaptive Itinerary App", desc: "Instant mobile updates with voucher barcodes, offline maps, and dining reservations." },
-          { title: "Unrestricted Flexibility", desc: "Want to sleep in or swap tomorrow's museum for a catamaran cruise? We handle the rebooking effortlessly." },
-        ],
-        interactiveType: 'customizer',
-      },
-    },
+          "Single dedicated trip concierge point-of-contact",
+          "Mobile itinerary app with offline access",
+          "Effortless on-the-fly schedule swaps"
+        ]
+      }
+    }
   ];
 
   const cityWeather = {
-    rome: { temp: "24°C", condition: "Sunny & Pleasant", humidity: "42%", wind: "12 km/h", icon: faSun, note: "Best season: April - June & Sept - Oct" },
-    paris: { temp: "19°C", condition: "Partly Cloudy", humidity: "56%", wind: "15 km/h", icon: faCloudSun, note: "Best season: May - September" },
-    tokyo: { temp: "22°C", condition: "Clear Skies", humidity: "48%", wind: "9 km/h", icon: faSun, note: "Best season: March - May & Oct - Nov" },
-    bali: { temp: "28°C", condition: "Warm Tropical", humidity: "65%", wind: "14 km/h", icon: faCloudRain, note: "Best season: May - August" },
+    rome: { temp: "24°C", condition: "Sunny & Mild", humidity: "42%", wind: "12 km/h", icon: faSun, season: "Peak Sun: Apr - Jun" },
+    paris: { temp: "19°C", condition: "Partly Cloudy", humidity: "56%", wind: "15 km/h", icon: faCloudSun, season: "Peak Sun: May - Sep" },
+    tokyo: { temp: "22°C", condition: "Clear Skies", humidity: "48%", wind: "9 km/h", icon: faSun, season: "Peak Sun: Mar - May" },
+    bali: { temp: "28°C", condition: "Warm Tropical", humidity: "65%", wind: "14 km/h", icon: faCloudRain, season: "Peak Sun: May - Aug" }
+  };
+
+  const sampleFlights = [
+    { dest: "Rome, Italy", route: "Direct · 8h 15m", price: "$485", tag: "Lowest 30 Days" },
+    { dest: "Tokyo, Japan", route: "1 Stop · 13h 40m", price: "$720", tag: "Popular Route" },
+    { dest: "Paris, France", route: "Direct · 7h 20m", price: "$430", tag: "Hot Deal" }
+  ];
+
+  const sampleEvents = [
+    { title: "Venice Masquerade Gala", date: "April 18, 2026", access: "VIP Private Access", location: "Grand Canal, Venice" },
+    { title: "Kyoto Cherry Blossom Night", date: "March 29, 2026", access: "Guaranteed Pass", location: "Maruyama Park, Kyoto" },
+    { title: "Amalfi Coast Vineyard Tasting", date: "Weekly · Thursdays", access: "Sommelier Guided", location: "Ravello, Italy" }
+  ];
+
+  const currentService = services.find((s) => s.id === activeTab) || services[0];
+
+  const handleCustomPlanSave = (e: React.FormEvent) => {
+    e.preventDefault();
+    setCustomPlanSaved(true);
+    setTimeout(() => setCustomPlanSaved(false), 2500);
   };
 
   return (
-    <section className="py-20 md:py-28 bg-gradient-to-b from-yellow-50/60 via-white to-white relative overflow-hidden">
-      {/* Background Decorative Accents */}
-      <div className="absolute top-12 right-0 -mr-20 w-96 h-96 bg-amber-100/40 rounded-full blur-3xl pointer-events-none -z-0" />
-      <div className="absolute bottom-10 left-0 -ml-20 w-80 h-80 bg-orange-100/30 rounded-full blur-3xl pointer-events-none -z-0" />
+    <section className="py-12 sm:py-16 md:py-20 bg-gradient-to-b from-amber-50/40 via-white to-slate-50/50 relative overflow-hidden">
+      {/* Subtle Ambient Background */}
+      <div className="absolute top-0 right-1/4 w-80 h-80 bg-amber-100/30 rounded-full blur-3xl pointer-events-none -z-0" />
+      <div className="absolute bottom-0 left-1/4 w-72 h-72 bg-orange-100/20 rounded-full blur-3xl pointer-events-none -z-0" />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        {/* Section Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-          className="text-center max-w-3xl mx-auto mb-16 sm:mb-20"
-        >
-          <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-orange-100/60 border border-orange-200/80 mb-4 shadow-sm">
-            <span className="w-2 h-2 rounded-full bg-orange-500 animate-pulse" />
-            <span className="text-xs sm:text-sm font-bold tracking-widest text-orange-600 uppercase">
-              CATEGORY &bull; WHAT WE OFFER
-            </span>
-          </div>
-
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-blue-950 tracking-tight leading-tight">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        
+        {/* Compact, Refined Header */}
+        <div className="text-center max-w-2xl mx-auto mb-8 sm:mb-10">
+          <p className="text-xs font-bold tracking-widest text-amber-600 uppercase mb-2">
+            CATEGORY · WHAT WE OFFER
+          </p>
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">
             We Offer Best Services
           </h2>
-
-          <p className="mt-4 text-gray-600 text-sm sm:text-base md:text-lg leading-relaxed">
-            From algorithmic weather planning to bespoke concierge itineraries, every service is crafted to make your global voyage smooth, inspiring, and stress-free.
+          <p className="mt-2 text-xs sm:text-sm text-slate-600">
+            Tailored travel architecture designed for seamless voyages across 120+ destinations.
           </p>
-        </motion.div>
+        </div>
 
-        {/* 4 Cards Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 lg:gap-8 items-stretch">
-          {services.map((service, index) => {
-            const isFeatured = service.id === "flights"; // Signature Jadoo highlight card
+        {/* 4 Compact Interactive Cards Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6">
+          {services.map((service) => {
+            const isActive = activeTab === service.id;
 
             return (
-              <motion.div
+              <button
                 key={service.id}
-                initial={{ opacity: 0, y: 32 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.2 }}
-                transition={{
-                  duration: 0.55,
-                  delay: index * 0.1,
-                  ease: [0.16, 1, 0.3, 1],
-                }}
-                className="relative group h-full flex flex-col"
+                type="button"
+                onClick={() => setActiveTab(service.id)}
+                className={`relative text-left p-4 sm:p-5 rounded-2xl transition-all duration-200 cursor-pointer border flex flex-col justify-between group outline-none ${
+                  isActive
+                    ? "bg-white border-amber-400 shadow-md shadow-amber-500/10 -translate-y-1"
+                    : "bg-white/80 hover:bg-white border-slate-200/80 hover:border-amber-300 shadow-sm hover:shadow"
+                }`}
               >
-                {/* Jadoo Signature Hover/Active Corner Accent */}
-                <div
-                  className={`absolute -bottom-4 -left-4 w-24 h-24 bg-gradient-to-br ${service.accentBg} rounded-tl-3xl rounded-br-3xl -z-10 transition-all duration-300 ${
-                    isFeatured
-                      ? "opacity-90 scale-100"
-                      : "opacity-0 scale-75 group-hover:opacity-100 group-hover:scale-100"
-                  }`}
-                />
+                {/* Active Indicator Top Accent Bar */}
+                {isActive && (
+                  <motion.div
+                    layoutId="activeCategoryIndicator"
+                    className="absolute top-0 left-6 right-6 h-1 bg-gradient-to-r from-amber-400 to-orange-500 rounded-b"
+                    transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                  />
+                )}
 
-                {/* Main Card Surface */}
-                <div
-                  className={`h-full flex flex-col justify-between p-7 sm:p-8 rounded-[32px] bg-white transition-all duration-300 border ${
-                    isFeatured
-                      ? "border-orange-200/90 shadow-2xl shadow-orange-500/10 -translate-y-2"
-                      : "border-gray-100 shadow-lg shadow-gray-200/50 hover:shadow-2xl hover:shadow-orange-500/10 hover:-translate-y-2 hover:border-orange-200/60"
-                  }`}
-                >
-                  {/* Top: Icon container & Badge */}
-                  <div>
-                    <div className="flex justify-between items-center mb-6">
-                      <span className={`text-[11px] font-semibold px-2.5 py-1 rounded-full border ${service.badgeColor}`}>
-                        {service.badge}
-                      </span>
-                      <span className="text-xs font-bold text-gray-400">
-                        0{index + 1}
-                      </span>
-                    </div>
-
-                    {/* Icon with ambient backdrop glow */}
-                    <div className="relative w-20 h-20 mx-auto mb-6 flex items-center justify-center">
-                      <div className={`absolute inset-0 rounded-2xl bg-gradient-to-tr ${service.glowColor} blur-xl group-hover:scale-125 transition-transform duration-300`} />
-                      
+                <div>
+                  {/* Top Bar: Icon + Category Number */}
+                  <div className="flex items-center justify-between mb-3.5">
+                    <div className="relative w-11 h-11 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center p-2 group-hover:scale-105 transition-transform">
                       {service.image ? (
-                        <div className="relative w-16 h-16 transition-transform duration-300 group-hover:scale-110">
+                        <div className="relative w-7 h-7">
                           <Image
                             src={service.image}
                             alt={service.title}
@@ -231,127 +220,90 @@ export default function Category() {
                           />
                         </div>
                       ) : (
-                        <div className={`relative w-16 h-16 rounded-2xl bg-gradient-to-br ${service.accentBg} text-white flex items-center justify-center text-2xl shadow-md transition-transform duration-300 group-hover:scale-110`}>
-                          <FontAwesomeIcon icon={service.icon} />
-                        </div>
+                        <FontAwesomeIcon icon={service.icon} className="text-slate-700 text-sm" />
                       )}
                     </div>
 
-                    {/* Title & Description */}
-                    <h3 className="text-xl font-bold text-gray-800 text-center mb-1 group-hover:text-blue-950 transition-colors">
-                      {service.title}
-                    </h3>
-                    <p className="text-[12px] font-medium text-orange-500 text-center mb-3">
-                      {service.subtitle}
-                    </p>
-                    <p className="text-gray-500 text-sm leading-relaxed text-center mb-6">
-                      {service.desc}
-                    </p>
-
-                    {/* Feature Pills */}
-                    <ul className="space-y-2 pt-2 border-t border-gray-100 mb-6">
-                      {service.features.map((feature, fIdx) => (
-                        <li key={fIdx} className="flex items-center text-xs text-gray-600">
-                          <span className="w-4 h-4 rounded-full bg-green-100 text-green-600 flex items-center justify-center text-[10px] mr-2 shrink-0">
-                            <FontAwesomeIcon icon={faCheck} />
-                          </span>
-                          <span>{feature}</span>
-                        </li>
-                      ))}
-                    </ul>
+                    <span className="text-[11px] font-bold text-slate-300 font-mono">
+                      {service.categoryNumber}
+                    </span>
                   </div>
 
-                  {/* Bottom: Stats & Interactive Explore CTA */}
-                  <div className="pt-4 border-t border-gray-100 flex items-center justify-between">
-                    <div>
-                      <p className="text-[10px] uppercase tracking-wider text-gray-400 font-semibold">{service.stats.label}</p>
-                      <p className="text-sm font-bold text-blue-950">{service.stats.value}</p>
-                    </div>
-
-                    <button
-                      onClick={() => setSelectedService(service)}
-                      className="inline-flex items-center space-x-1.5 px-3.5 py-1.5 rounded-xl bg-yellow-400/90 hover:bg-yellow-500 text-white text-xs font-semibold shadow-sm hover:shadow transition-all group-hover:bg-yellow-500 cursor-pointer"
-                      aria-label={`Explore details for ${service.title}`}
-                    >
-                      <span>Explore</span>
-                      <FontAwesomeIcon icon={faArrowRight} className="text-[10px] group-hover:translate-x-0.5 transition-transform" />
-                    </button>
-                  </div>
+                  {/* Title & Concise Summary */}
+                  <h3 className={`text-base font-bold transition-colors ${isActive ? 'text-amber-600' : 'text-slate-800 group-hover:text-slate-900'}`}>
+                    {service.title}
+                  </h3>
+                  <p className="text-xs text-slate-500 mt-1 line-clamp-2 leading-relaxed">
+                    {service.shortDesc}
+                  </p>
                 </div>
-              </motion.div>
+
+                {/* Bottom Row: Key Tag + Action Cue */}
+                <div className="pt-3 mt-3 border-t border-slate-100 flex items-center justify-between text-[11px]">
+                  <span className="text-slate-400 font-medium">
+                    {service.stats}
+                  </span>
+
+                  <span className={`font-semibold flex items-center gap-1 transition-colors ${isActive ? 'text-amber-600' : 'text-slate-400 group-hover:text-slate-700'}`}>
+                    <span>{isActive ? 'Active' : 'Preview'}</span>
+                    <FontAwesomeIcon
+                      icon={faArrowRight}
+                      className={`text-[9px] transition-transform ${isActive ? 'translate-x-0.5' : 'group-hover:translate-x-0.5'}`}
+                    />
+                  </span>
+                </div>
+              </button>
             );
           })}
         </div>
-      </div>
 
-      {/* Senior Web Dev: Interactive Service Detail Modal */}
-      <AnimatePresence>
-        {selectedService && (
-          <div
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
-            onClick={() => setSelectedService(null)}
-          >
-            <motion.div
-              initial={{ opacity: 0, scale: 0.94, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.94, y: 20 }}
-              transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-              className="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl border border-gray-100 relative max-h-[90vh] overflow-y-auto"
-              onClick={(e) => e.stopPropagation()}
-            >
-              {/* Close Button */}
+        {/* Unique Feature: Interactive Live Service Console */}
+        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-4 sm:p-6 transition-all">
+          <div className="flex flex-wrap items-center justify-between gap-3 pb-4 mb-4 border-b border-slate-100">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+              <h4 className="text-sm font-bold text-slate-900">
+                Interactive Console: {currentService.title}
+              </h4>
+              <span className="text-xs text-slate-400 hidden sm:inline">· Live Widget</span>
+            </div>
+
+            <div className="flex items-center gap-2">
               <button
-                onClick={() => setSelectedService(null)}
-                className="absolute top-5 right-5 w-9 h-9 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 flex items-center justify-center transition-colors cursor-pointer"
-                aria-label="Close modal"
+                type="button"
+                onClick={() => setIsModalOpen(true)}
+                className="text-xs font-semibold text-amber-600 hover:text-amber-700 hover:underline inline-flex items-center gap-1 cursor-pointer"
               >
-                <FontAwesomeIcon icon={faTimes} />
+                <span>Full Details</span>
+                <FontAwesomeIcon icon={faArrowRight} className="text-[10px]" />
               </button>
+            </div>
+          </div>
 
-              {/* Modal Header */}
-              <div className="flex items-center space-x-4 mb-6">
-                <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${selectedService.accentBg} text-white flex items-center justify-center text-2xl shadow-lg shrink-0`}>
-                  <FontAwesomeIcon icon={selectedService.icon} />
-                </div>
-                <div>
-                  <span className={`text-xs font-semibold px-2.5 py-0.5 rounded-full border ${selectedService.badgeColor}`}>
-                    {selectedService.badge}
-                  </span>
-                  <h3 className="text-2xl font-bold text-gray-900 mt-1">
-                    {selectedService.title}
-                  </h3>
-                  <p className="text-xs text-gray-500 font-medium">
-                    {selectedService.subtitle}
-                  </p>
-                </div>
-              </div>
-
-              {/* Description */}
-              <p className="text-gray-600 text-sm sm:text-base leading-relaxed mb-6">
-                {selectedService.modalDetails.description}
-              </p>
-
-              {/* Interactive Module for this Service */}
-              {selectedService.modalDetails.interactiveType === 'weather' && (
-                <div className="bg-yellow-50/70 border border-yellow-200/80 rounded-2xl p-5 mb-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <span className="text-xs font-bold text-gray-700 uppercase tracking-wider flex items-center gap-1.5">
-                      <FontAwesomeIcon icon={faSun} className="text-amber-500" />
-                      Live Climate Radar Preview
-                    </span>
-                    <span className="text-xs text-gray-500">Updated hourly</span>
-                  </div>
-
-                  {/* Destination Tabs */}
-                  <div className="grid grid-cols-4 gap-2 mb-4">
+          {/* Dynamic Console Tool based on Active Service */}
+          <AnimatePresence mode="wait">
+            
+            {/* 1. WEATHER RADAR CONSOLE */}
+            {activeTab === "weather" && (
+              <motion.div
+                key="weather"
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -6 }}
+                transition={{ duration: 0.15 }}
+                className="space-y-4"
+              >
+                <div className="flex flex-wrap items-center justify-between gap-3 text-xs">
+                  <div className="flex items-center gap-1.5 p-1 bg-slate-100 rounded-lg">
                     {(['rome', 'paris', 'tokyo', 'bali'] as const).map((city) => (
                       <button
                         key={city}
+                        type="button"
                         onClick={() => setActiveWeatherCity(city)}
-                        className={`py-1.5 rounded-lg text-xs font-semibold capitalize transition-all cursor-pointer ${
+                        className={`px-3 py-1 font-semibold rounded-md capitalize transition-all cursor-pointer ${
                           activeWeatherCity === city
-                            ? 'bg-yellow-400 text-white shadow-sm'
-                            : 'bg-white text-gray-700 hover:bg-yellow-100/60 border border-gray-200/60'
+                            ? "bg-white text-slate-900 shadow-xs"
+                            : "text-slate-600 hover:text-slate-900"
                         }`}
                       >
                         {city}
@@ -359,174 +311,260 @@ export default function Category() {
                     ))}
                   </div>
 
-                  {/* Weather Snapshot */}
-                  <div className="bg-white rounded-xl p-4 border border-yellow-200/60 flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      <div className="text-3xl text-amber-500">
-                        <FontAwesomeIcon icon={cityWeather[activeWeatherCity].icon} />
-                      </div>
-                      <div>
-                        <p className="text-2xl font-extrabold text-gray-900">{cityWeather[activeWeatherCity].temp}</p>
-                        <p className="text-xs font-medium text-gray-600">{cityWeather[activeWeatherCity].condition}</p>
-                      </div>
-                    </div>
-
-                    <div className="text-right text-xs text-gray-500 space-y-1">
-                      <p className="flex items-center gap-1 justify-end"><FontAwesomeIcon icon={faWind} className="text-gray-400" /> Wind: {cityWeather[activeWeatherCity].wind}</p>
-                      <p className="flex items-center gap-1 justify-end"><FontAwesomeIcon icon={faCloudRain} className="text-gray-400" /> Humidity: {cityWeather[activeWeatherCity].humidity}</p>
-                    </div>
-                  </div>
-                  <p className="text-[11px] text-gray-500 mt-2 italic text-center">
-                    💡 {cityWeather[activeWeatherCity].note}
-                  </p>
-                </div>
-              )}
-
-              {selectedService.modalDetails.interactiveType === 'flights' && (
-                <div className="bg-blue-50/70 border border-blue-200/80 rounded-2xl p-5 mb-6">
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="text-xs font-bold text-blue-900 uppercase tracking-wider flex items-center gap-1.5">
-                      <FontAwesomeIcon icon={faPlane} className="text-blue-600" />
-                      Partner Airlines &amp; Fare Defense
-                    </span>
-                    <span className="text-xs text-green-700 font-semibold bg-green-100 px-2 py-0.5 rounded-full">
-                      Avg. -$320 Below Public Rates
-                    </span>
-                  </div>
-                  <div className="grid grid-cols-3 gap-3 text-center text-xs">
-                    <div className="bg-white p-3 rounded-xl border border-blue-100">
-                      <p className="font-bold text-gray-800">Emirates</p>
-                      <p className="text-gray-500 text-[11px]">Free seat &amp; meals</p>
-                    </div>
-                    <div className="bg-white p-3 rounded-xl border border-blue-100">
-                      <p className="font-bold text-gray-800">Air France</p>
-                      <p className="text-gray-500 text-[11px]">Direct European routes</p>
-                    </div>
-                    <div className="bg-white p-3 rounded-xl border border-blue-100">
-                      <p className="font-bold text-gray-800">Singapore Air</p>
-                      <p className="text-gray-500 text-[11px]">5-Star Asian service</p>
-                    </div>
+                  <div className="text-slate-500 text-[11px]">
+                    Multi-satellite radar updated moments ago
                   </div>
                 </div>
-              )}
 
-              {selectedService.modalDetails.interactiveType === 'events' && (
-                <div className="bg-emerald-50/70 border border-emerald-200/80 rounded-2xl p-5 mb-6">
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="text-xs font-bold text-emerald-900 uppercase tracking-wider flex items-center gap-1.5">
-                      <FontAwesomeIcon icon={faTicketAlt} className="text-emerald-600" />
-                      Featured Seasonal Events (VIP Included)
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-slate-50 p-3.5 rounded-xl border border-slate-100 text-xs">
+                  <div>
+                    <span className="text-slate-400 block text-[10px] uppercase font-semibold">Temperature</span>
+                    <span className="text-xl font-bold text-slate-900 mt-0.5 block flex items-center gap-1.5">
+                      <FontAwesomeIcon icon={cityWeather[activeWeatherCity].icon} className="text-amber-500 text-sm" />
+                      {cityWeather[activeWeatherCity].temp}
                     </span>
                   </div>
-                  <div className="space-y-2 text-xs">
-                    <div className="bg-white p-2.5 rounded-xl border border-emerald-100 flex justify-between items-center">
-                      <div>
-                        <p className="font-bold text-gray-800">Venice Masked Carnival &amp; Grand Canal Gala</p>
-                        <p className="text-gray-500 text-[11px]">Includes private gondola transfer &amp; costume rental</p>
-                      </div>
-                      <span className="text-xs font-semibold text-emerald-700 bg-emerald-50 px-2 py-1 rounded-md">Feb - Mar</span>
-                    </div>
-                    <div className="bg-white p-2.5 rounded-xl border border-emerald-100 flex justify-between items-center">
-                      <div>
-                        <p className="font-bold text-gray-800">Kyoto Spring Cherry Blossom Night Illumination</p>
-                        <p className="text-gray-500 text-[11px]">Private temple garden access before public gates open</p>
-                      </div>
-                      <span className="text-xs font-semibold text-emerald-700 bg-emerald-50 px-2 py-1 rounded-md">Apr - May</span>
-                    </div>
+                  <div>
+                    <span className="text-slate-400 block text-[10px] uppercase font-semibold">Condition</span>
+                    <span className="text-xs font-semibold text-slate-800 mt-1 block">
+                      {cityWeather[activeWeatherCity].condition}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-slate-400 block text-[10px] uppercase font-semibold">Humidity / Wind</span>
+                    <span className="text-xs font-semibold text-slate-800 mt-1 block">
+                      {cityWeather[activeWeatherCity].humidity} · {cityWeather[activeWeatherCity].wind}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-slate-400 block text-[10px] uppercase font-semibold">Seasonal Window</span>
+                    <span className="text-xs font-semibold text-amber-700 mt-1 block">
+                      {cityWeather[activeWeatherCity].season}
+                    </span>
                   </div>
                 </div>
-              )}
+              </motion.div>
+            )}
 
-              {selectedService.modalDetails.interactiveType === 'customizer' && (
-                <div className="bg-purple-50/70 border border-purple-200/80 rounded-2xl p-5 mb-6">
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="text-xs font-bold text-purple-900 uppercase tracking-wider flex items-center gap-1.5">
-                      <FontAwesomeIcon icon={faCompass} className="text-purple-600" />
-                      Quick Itinerary Estimator
-                    </span>
+            {/* 2. BEST FLIGHTS CONSOLE */}
+            {activeTab === "flights" && (
+              <motion.div
+                key="flights"
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -6 }}
+                transition={{ duration: 0.15 }}
+                className="space-y-3"
+              >
+                <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
+                  <span className="text-slate-600">
+                    Departure origin: <strong className="text-slate-900">{flightOrigin}</strong>
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setFlightOrigin(flightOrigin === 'New York (JFK)' ? 'London (LHR)' : 'New York (JFK)')}
+                      className="text-xs font-medium text-amber-600 hover:text-amber-700 underline cursor-pointer"
+                    >
+                      Swap Departure City
+                    </button>
                   </div>
+                </div>
 
-                  {customSubmitted ? (
-                    <div className="bg-white p-4 rounded-xl border border-purple-200 text-center">
-                      <p className="text-sm font-bold text-purple-950">Draft Blueprint Created!</p>
-                      <p className="text-xs text-gray-600 mt-1">
-                        A personalized {customDuration} {customStyle} proposal has been forwarded to our concierge team.
-                      </p>
-                    </div>
-                  ) : (
-                    <div className="space-y-3">
-                      <div className="grid grid-cols-2 gap-3 text-xs">
-                        <div>
-                          <label className="block text-gray-700 font-semibold mb-1">Travel Style</label>
-                          <select
-                            value={customStyle}
-                            onChange={(e) => setCustomStyle(e.target.value)}
-                            className="w-full bg-white border border-purple-200 rounded-lg p-2 text-xs focus:ring-2 focus:ring-purple-400 focus:outline-none"
-                          >
-                            <option>Luxury Escape</option>
-                            <option>Adventure &amp; Hiking</option>
-                            <option>Cultural Immersion</option>
-                            <option>Family Fun</option>
-                          </select>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                  {sampleFlights.map((flight, idx) => (
+                    <div
+                      key={idx}
+                      className="p-3 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between hover:border-slate-300 transition-colors text-xs"
+                    >
+                      <div>
+                        <div className="flex items-center gap-1.5">
+                          <FontAwesomeIcon icon={faPlane} className="text-sky-500 text-[10px]" />
+                          <span className="font-bold text-slate-900">{flight.dest}</span>
                         </div>
-                        <div>
-                          <label className="block text-gray-700 font-semibold mb-1">Duration</label>
-                          <select
-                            value={customDuration}
-                            onChange={(e) => setCustomDuration(e.target.value)}
-                            className="w-full bg-white border border-purple-200 rounded-lg p-2 text-xs focus:ring-2 focus:ring-purple-400 focus:outline-none"
-                          >
-                            <option>7 Days</option>
-                            <option>10 Days</option>
-                            <option>14 Days</option>
-                            <option>3 Weeks+</option>
-                          </select>
-                        </div>
+                        <span className="text-[11px] text-slate-500 block mt-0.5">{flight.route}</span>
                       </div>
-                      <button
-                        onClick={() => setCustomSubmitted(true)}
-                        className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 rounded-lg text-xs transition-colors shadow-sm cursor-pointer"
-                      >
-                        Generate Custom Plan
-                      </button>
+                      <div className="text-right">
+                        <span className="font-extrabold text-sm text-slate-900 block">{flight.price}</span>
+                        <span className="text-[10px] font-medium text-emerald-600">{flight.tag}</span>
+                      </div>
                     </div>
-                  )}
+                  ))}
                 </div>
-              )}
+              </motion.div>
+            )}
 
-              {/* Key Service Highlights */}
-              <h4 className="text-sm font-bold text-gray-800 uppercase tracking-wider mb-3">
-                Key Service Pillars
-              </h4>
-              <div className="space-y-3 mb-6">
-                {selectedService.modalDetails.highlights.map((item, idx) => (
-                  <div key={idx} className="flex items-start space-x-3 text-sm">
-                    <span className="w-5 h-5 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center text-xs mt-0.5 shrink-0">
-                      ✓
-                    </span>
+            {/* 3. LOCAL EVENTS CONSOLE */}
+            {activeTab === "events" && (
+              <motion.div
+                key="events"
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -6 }}
+                transition={{ duration: 0.15 }}
+                className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs"
+              >
+                {sampleEvents.map((evt, idx) => (
+                  <div
+                    key={idx}
+                    className="p-3 rounded-xl bg-slate-50 border border-slate-100 flex flex-col justify-between hover:border-slate-300 transition-colors"
+                  >
                     <div>
-                      <strong className="text-gray-900 block font-semibold">{item.title}</strong>
-                      <span className="text-gray-600 text-xs leading-relaxed">{item.desc}</span>
+                      <div className="flex items-center justify-between text-[10px] text-slate-400 font-semibold mb-1">
+                        <span>{evt.location}</span>
+                        <FontAwesomeIcon icon={faTicketAlt} className="text-amber-500" />
+                      </div>
+                      <h5 className="font-bold text-slate-900 text-xs">{evt.title}</h5>
+                      <span className="text-[11px] text-slate-500 block mt-0.5">{evt.date}</span>
                     </div>
+                    <div className="mt-2.5 pt-2 border-t border-slate-200/60 flex items-center justify-between text-[11px]">
+                      <span className="font-medium text-emerald-600">{evt.access}</span>
+                      <span className="text-amber-600 font-semibold">Reserve Pass</span>
+                    </div>
+                  </div>
+                ))}
+              </motion.div>
+            )}
+
+            {/* 4. CUSTOMIZATION CONSOLE */}
+            {activeTab === "customization" && (
+              <motion.div
+                key="customization"
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -6 }}
+                transition={{ duration: 0.15 }}
+                className="space-y-3"
+              >
+                <form onSubmit={handleCustomPlanSave} className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                  <div>
+                    <label className="block text-[11px] font-medium text-slate-600 mb-1">Travel Style</label>
+                    <select
+                      value={customStyle}
+                      onChange={(e) => setCustomStyle(e.target.value)}
+                      className="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold text-slate-800 focus:outline-none focus:ring-1 focus:ring-amber-500"
+                    >
+                      <option>Luxury Discovery</option>
+                      <option>Relaxed Coastal</option>
+                      <option>Cultural Heritage</option>
+                      <option>Nature & Trekking</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-medium text-slate-600 mb-1">Trip Duration</label>
+                    <select
+                      value={customDays}
+                      onChange={(e) => setCustomDays(e.target.value)}
+                      className="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold text-slate-800 focus:outline-none focus:ring-1 focus:ring-amber-500"
+                    >
+                      <option>7 Days (Essential)</option>
+                      <option>10 Days (Recommended)</option>
+                      <option>14 Days (In-depth)</option>
+                      <option>21+ Days (Grand Voyage)</option>
+                    </select>
+                  </div>
+
+                  <div className="flex items-end">
+                    <button
+                      type="submit"
+                      className="w-full py-2 px-3 rounded-lg bg-amber-500 hover:bg-amber-600 text-white font-semibold text-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
+                    >
+                      {customPlanSaved ? (
+                        <>
+                          <FontAwesomeIcon icon={faCheck} />
+                          <span>Plan Generated!</span>
+                        </>
+                      ) : (
+                        <>
+                          <FontAwesomeIcon icon={faCompass} />
+                          <span>Generate Custom Blueprint</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </form>
+
+                {customPlanSaved && (
+                  <p className="text-[11px] text-emerald-600 font-medium">
+                    ✓ Custom {customDays} {customStyle} blueprint saved to your session. Concierge advisor notified.
+                  </p>
+                )}
+              </motion.div>
+            )}
+
+          </AnimatePresence>
+        </div>
+
+      </div>
+
+      {/* Clean Modal for In-Depth Service Details */}
+      <AnimatePresence>
+        {isModalOpen && (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs"
+            onClick={() => setIsModalOpen(false)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.96 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.96 }}
+              transition={{ duration: 0.15 }}
+              className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl border border-slate-200 relative"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                type="button"
+                onClick={() => setIsModalOpen(false)}
+                className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
+                aria-label="Close modal"
+              >
+                <FontAwesomeIcon icon={faTimes} />
+              </button>
+
+              <div className="mb-4">
+                <span className="text-xs font-bold text-amber-600 uppercase tracking-widest">
+                  Service Specifications
+                </span>
+                <h3 className="text-xl font-bold text-slate-900 mt-1">
+                  {currentService.title}
+                </h3>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  {currentService.details.headline}
+                </p>
+              </div>
+
+              <p className="text-xs text-slate-600 leading-relaxed mb-4">
+                {currentService.details.description}
+              </p>
+
+              <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 space-y-2 mb-5">
+                <span className="text-[11px] font-bold text-slate-700 uppercase tracking-wider block mb-1">
+                  Guaranteed Standards
+                </span>
+                {currentService.details.highlights.map((h, i) => (
+                  <div key={i} className="flex items-center text-xs text-slate-700 gap-2">
+                    <span className="text-emerald-500 font-bold">✓</span>
+                    <span>{h}</span>
                   </div>
                 ))}
               </div>
 
-              {/* Modal Footer CTA */}
-              <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-                <a
-                  href="#destinations"
-                  onClick={() => setSelectedService(null)}
-                  className="bg-yellow-400 hover:bg-yellow-500 text-white font-semibold px-6 py-2.5 rounded-xl text-sm transition-all shadow-md"
-                >
-                  View Applicable Destinations
-                </a>
+              <div className="flex items-center justify-end gap-2 pt-2">
                 <button
-                  onClick={() => setSelectedService(null)}
-                  className="text-gray-500 hover:text-gray-800 text-sm font-medium cursor-pointer"
+                  type="button"
+                  onClick={() => setIsModalOpen(false)}
+                  className="px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
                 >
                   Close
                 </button>
+                <a
+                  href="#bookings"
+                  onClick={() => setIsModalOpen(false)}
+                  className="px-4 py-2 text-xs font-semibold text-white bg-amber-500 hover:bg-amber-600 rounded-lg shadow-xs transition-colors"
+                >
+                  Book with This Service
+                </a>
               </div>
             </motion.div>
           </div>

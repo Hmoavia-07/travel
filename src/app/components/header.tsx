@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useState, useRef, useEffect } from "react";
 import { useAuth } from "@/app/context/AuthContext";
-import { FaUser, FaSignOutAlt, FaChevronDown, FaSuitcase, FaCheckCircle } from "react-icons/fa";
+import { FaSignOutAlt, FaChevronDown, FaSuitcase, FaCheckCircle } from "react-icons/fa";
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
@@ -125,7 +125,7 @@ export default function Header() {
                           onClick={() => setUserDropdownOpen(false)}
                           className="flex items-center px-4 py-2 hover:bg-yellow-50 hover:text-yellow-700 transition-colors"
                         >
-                          <FaUser className="mr-3 text-gray-400" />
+                          <FaSuitcase className="mr-3 text-gray-400" />
                           <span>Explore Trips</span>
                         </Link>
                       </li>
