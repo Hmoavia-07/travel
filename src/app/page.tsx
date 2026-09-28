@@ -1,7 +1,7 @@
-import Homepage from "./components/hero";
-import Category from "./components/category";
+import Homepage from "./sections/hero";
+import Category from "./sections/category";
 import DestinationsSection from "./components/destinations";
-import Bookings from "./components/bookings";
+import Bookings from "./sections/Bookings";
 import Feedback from "./components/feedback";
 
 export default function Home() {
