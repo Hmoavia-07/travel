@@ -1,12 +1,26 @@
 'use client';
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from 'next/image';
 import Header from "../components/header";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
+import { FaPlay, FaTimes } from "react-icons/fa";
 
 export default function Homepage() {
   const [showDemoModal, setShowDemoModal] = useState(false);
+
+  // Close modal on Escape key
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setShowDemoModal(false);
+      }
+    };
+    if (showDemoModal) {
+      window.addEventListener("keydown", handleKeyDown);
+    }
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [showDemoModal]);
 
   return (
     <div className="w-full min-h-screen bg-yellow-50 md:bg-white bg-[url('/images/Decore.png')] bg-cover bg-center flex flex-col">
@@ -57,13 +71,14 @@ export default function Homepage() {
             >
               <a
                 href="#services"
-                className="bg-yellow-400 text-white hover:bg-yellow-600 rounded-md px-4 py-2 text-sm md:text-base font-medium shadow-md transition-colors"
+                className="bg-yellow-400 text-white hover:bg-yellow-500 rounded-xl px-5 py-3 text-sm md:text-base font-semibold shadow-md transition-colors"
               >
                 Find out more
               </a>
               <button
+                type="button"
                 onClick={() => setShowDemoModal(true)}
-                className="w-[110px] md:w-[140px] hover:opacity-80 transition-opacity"
+                className="w-[110px] md:w-[140px] hover:opacity-80 transition-opacity cursor-pointer"
                 aria-label="Play Demo Video"
               >
                 <Image
@@ -96,51 +111,64 @@ export default function Homepage() {
       </div>
 
       {/* Demo Video Modal */}
-      {showDemoModal && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
-          onClick={() => setShowDemoModal(false)}
-        >
+      <AnimatePresence>
+        {showDemoModal && (
           <div
-            className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl relative"
-            onClick={(e) => e.stopPropagation()}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs"
+            onClick={() => setShowDemoModal(false)}
           >
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-xl font-bold text-gray-800">Destination Demo Tour</h3>
-              <button
-                onClick={() => setShowDemoModal(false)}
-                className="text-gray-400 hover:text-gray-600 text-2xl font-bold"
-              >
-                &times;
-              </button>
-            </div>
-            <div className="relative h-64 w-full rounded-xl overflow-hidden mb-4">
-              <Image
-                src="/images/destination-4.jpg"
-                alt="Demo preview"
-                fill
-                className="object-cover"
-              />
-              <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
-                <span className="text-white text-base font-semibold bg-red-500/80 px-4 py-2 rounded-full">
-                  ▶ Previewing Rome Tour
-                </span>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ duration: 0.16 }}
+              className="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl relative border border-gray-100"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-xl font-bold text-gray-900">Destination Demo Tour</h3>
+                <button
+                  type="button"
+                  onClick={() => setShowDemoModal(false)}
+                  className="text-gray-400 hover:text-gray-600 p-2 rounded-xl hover:bg-gray-100 transition-colors"
+                  aria-label="Close modal"
+                >
+                  <FaTimes />
+                </button>
               </div>
-            </div>
-            <p className="text-gray-600 text-sm">
-              Discover beautiful historic sites, personalized itinerary recommendations, and real-time guided booking with Jadoo.
-            </p>
-            <div className="mt-4 flex justify-end">
-              <button
-                onClick={() => setShowDemoModal(false)}
-                className="bg-yellow-400 hover:bg-yellow-500 text-white font-medium px-4 py-2 rounded-lg"
-              >
-                Close Demo
-              </button>
-            </div>
+
+              <div className="relative h-64 w-full rounded-2xl overflow-hidden mb-4 border border-gray-100 shadow-inner">
+                <Image
+                  src="/images/destination-4.jpg"
+                  alt="Demo preview"
+                  fill
+                  className="object-cover"
+                />
+                <div className="absolute inset-0 bg-black/35 flex items-center justify-center">
+                  <span className="text-white text-sm font-semibold bg-red-500/90 px-4 py-2 rounded-full flex items-center gap-2 shadow-lg">
+                    <FaPlay className="text-xs" />
+                    <span>Previewing Rome Tour</span>
+                  </span>
+                </div>
+              </div>
+
+              <p className="text-gray-600 text-xs sm:text-sm leading-relaxed">
+                Discover beautiful historic sights, personalized itinerary recommendations, and real-time guided booking with Jadoo.
+              </p>
+
+              <div className="mt-5 flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowDemoModal(false)}
+                  className="bg-yellow-400 hover:bg-yellow-500 text-white font-semibold px-5 py-2 rounded-xl text-xs transition-colors shadow-sm"
+                >
+                  Close Demo
+                </button>
+              </div>
+            </motion.div>
           </div>
-        </div>
-      )}
+        )}
+      </AnimatePresence>
     </div>
   );
 }

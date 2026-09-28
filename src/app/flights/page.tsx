@@ -1,10 +1,12 @@
 'use client';
 
 import Header from "@/app/components/header";
-import Link from "next/link";
 import { FaPlaneDeparture, FaClock, FaSuitcase } from "react-icons/fa";
+import { useTravel } from "@/app/context/TravelContext";
 
 export default function FlightsPage() {
+  const { openBookingModal } = useTravel();
+
   const flights = [
     {
       airline: "Emirates",
@@ -16,6 +18,7 @@ export default function FlightsPage() {
       duration: "7h 45m",
       stops: "Direct",
       price: "$680",
+      numericPrice: 680,
     },
     {
       airline: "Air France",
@@ -27,6 +30,7 @@ export default function FlightsPage() {
       duration: "7h 15m",
       stops: "Direct",
       price: "$720",
+      numericPrice: 720,
     },
     {
       airline: "Singapore Airlines",
@@ -38,6 +42,7 @@ export default function FlightsPage() {
       duration: "12h 35m",
       stops: "Direct",
       price: "$890",
+      numericPrice: 890,
     },
     {
       airline: "Japan Airlines",
@@ -49,8 +54,16 @@ export default function FlightsPage() {
       duration: "11h 25m",
       stops: "Direct",
       price: "$950",
+      numericPrice: 950,
     },
   ];
+
+  const handleSelectFlight = (flight: typeof flights[0]) => {
+    openBookingModal({
+      destination: `${flight.airline} ${flight.flightNo} (${flight.from} → ${flight.to})`,
+      basePrice: flight.numericPrice
+    });
+  };
 
   return (
     <div className="min-h-screen bg-white">
@@ -102,12 +115,13 @@ export default function FlightsPage() {
                   <p className="text-2xl font-bold text-blue-900">{flight.price}</p>
                   <p className="text-xs text-gray-400 flex items-center gap-1 justify-end"><FaSuitcase /> Baggage inc.</p>
                 </div>
-                <Link
-                  href="/#bookings"
-                  className="bg-yellow-400 hover:bg-yellow-500 text-white font-medium px-5 py-2.5 rounded-xl text-sm transition-colors shadow-sm"
+                <button
+                  type="button"
+                  onClick={() => handleSelectFlight(flight)}
+                  className="bg-yellow-400 hover:bg-yellow-500 text-white font-medium px-5 py-2.5 rounded-xl text-sm transition-colors shadow-sm cursor-pointer"
                 >
                   Select
-                </Link>
+                </button>
               </div>
             </div>
           ))}

@@ -27,6 +27,7 @@ import {
 } from "react-icons/fa6";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
+import { useTravel } from "@/app/context/TravelContext";
 
 interface BookingStepItem {
   icon: IconType;
@@ -55,21 +56,25 @@ interface TripCardData {
 }
 
 export default function Bookings() {
+  const {
+    isBookingModalOpen,
+    openBookingModal,
+    closeBookingModal,
+    addBooking,
+    bookingDraft,
+    updateBookingDraft,
+    toggleWishlist,
+    isInWishlist
+  } = useTravel();
+
   const [activeStepIndex, setActiveStepIndex] = useState<number>(0);
   const [activeCardIndex, setActiveCardIndex] = useState<number>(0);
-  const [liked, setLiked] = useState<boolean>(false);
   const [activeBadgeTooltip, setActiveBadgeTooltip] = useState<string | null>(null);
   const [copyFeedback, setCopyFeedback] = useState<boolean>(false);
-
-  // Booking Modal State
-  const [isBookingModalOpen, setIsBookingModalOpen] = useState<boolean>(false);
   const [bookingConfirmed, setBookingConfirmed] = useState<boolean>(false);
-  const [selectedDestination, setSelectedDestination] = useState<string>("Trip To Greece");
-  const [selectedGuests, setSelectedGuests] = useState<number>(2);
-  const [selectedDate, setSelectedDate] = useState<string>("2026-06-14");
-  const [promoCode, setPromoCode] = useState<string>("");
-  const [promoApplied, setPromoApplied] = useState<boolean>(false);
+  const [confirmedBookingId, setConfirmedBookingId] = useState<string>("");
   const [promoError, setPromoError] = useState<string>("");
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   const tripData: TripCardData[] = [
     {
@@ -99,6 +104,7 @@ export default function Bookings() {
 
   const currentMainTrip = tripData[activeCardIndex];
   const currentSubTrip = tripData[activeCardIndex === 0 ? 1 : 0];
+  const isTripFavorited = isInWishlist(currentMainTrip.id);
 
   const steps: BookingStepItem[] = [
     {
@@ -141,12 +147,12 @@ export default function Bookings() {
 
   const handleLikeToggle = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setLiked((prev) => !prev);
+    toggleWishlist(currentMainTrip.id);
   };
 
   const handleShareClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (navigator.clipboard) {
+    if (typeof window !== "undefined" && navigator.clipboard) {
       navigator.clipboard.writeText(window.location.href);
       setCopyFeedback(true);
       setTimeout(() => setCopyFeedback(false), 2000);
@@ -155,31 +161,49 @@ export default function Bookings() {
 
   const handleApplyPromo = (e: React.MouseEvent) => {
     e.preventDefault();
-    if (promoCode.trim().toUpperCase() === "JADOO10" || promoCode.trim().toUpperCase() === "SUMMER") {
-      setPromoApplied(true);
+    const code = bookingDraft.promoCode.trim().toUpperCase();
+    if (code === "JADOO10" || code === "SUMMER") {
+      updateBookingDraft({ promoApplied: true });
       setPromoError("");
     } else {
       setPromoError("Invalid code. Try 'JADOO10' for 10% off");
     }
   };
 
-  const handleFormSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setBookingConfirmed(true);
-    setTimeout(() => {
-      setBookingConfirmed(false);
-      setIsBookingModalOpen(false);
-    }, 2800);
-  };
-
   const calculateSubtotal = () => {
-    const base = selectedDestination.includes("Rome") ? 4200 : selectedDestination.includes("Santorini") ? 4800 : selectedDestination.includes("Tokyo") ? 5600 : 3850;
-    return base * selectedGuests;
+    const dest = bookingDraft.destination;
+    const base = dest.includes("Rome") ? 4200 : dest.includes("Santorini") ? 4800 : dest.includes("Tokyo") ? 5600 : 3850;
+    return base * bookingDraft.guests;
   };
 
   const subtotal = calculateSubtotal();
-  const discount = promoApplied ? Math.round(subtotal * 0.1) : 450;
+  const discount = bookingDraft.promoApplied ? Math.round(subtotal * 0.1) : 450;
   const grandTotal = Math.max(1, subtotal - discount);
+
+  const handleFormSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    try {
+      const confirmed = await addBooking({
+        destination: bookingDraft.destination,
+        departureDate: bookingDraft.departureDate,
+        guests: bookingDraft.guests,
+        totalPrice: grandTotal,
+        image: currentMainTrip.image
+      });
+
+      setConfirmedBookingId(confirmed.id);
+      setBookingConfirmed(true);
+
+      setTimeout(() => {
+        setBookingConfirmed(false);
+        closeBookingModal();
+      }, 3000);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <div id="bookings" className="px-4 sm:px-12 md:px-20 lg:px-48 py-10 sm:py-14 md:py-18 lg:py-24 bg-yellow-50 md:bg-white overflow-hidden relative">
@@ -214,7 +238,6 @@ export default function Bookings() {
 
           {/* Interactive Steps List with Connected Timeline UX */}
           <div className="relative space-y-3.5 sm:space-y-4">
-            {/* Visual connecting timeline track */}
             <div className="absolute left-[26px] sm:left-[30px] md:left-[32px] top-6 bottom-6 w-0.5 bg-slate-200 pointer-events-none -z-0 hidden sm:block" />
 
             {steps.map((step, idx) => {
@@ -240,7 +263,6 @@ export default function Bookings() {
                   }`}
                   aria-pressed={isActive}
                 >
-                  {/* Step Icon Badge */}
                   <div
                     className={`${step.color} w-11 h-11 sm:w-13 sm:h-13 md:w-14 md:h-14 flex justify-center items-center rounded-2xl shadow-md shrink-0 transition-transform ${
                       isActive ? "scale-105 ring-4 ring-amber-100" : "hover:scale-105"
@@ -249,7 +271,6 @@ export default function Bookings() {
                     <Icon className="text-white text-lg sm:text-xl md:text-2xl" />
                   </div>
 
-                  {/* Step Text Content */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between gap-2">
                       <h3 className={`font-bold text-sm sm:text-base md:text-lg transition-colors ${
@@ -268,7 +289,6 @@ export default function Bookings() {
                       {step.description}
                     </p>
 
-                    {/* Step Highlight Drawer when Active */}
                     <AnimatePresence>
                       {isActive && (
                         <motion.div
@@ -329,10 +349,7 @@ export default function Bookings() {
           transition={{ duration: 0.65, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
           className="lg:w-1/2 flex flex-col items-center lg:items-end w-full lg:pt-4"
         >
-          {/* Card Anchor with relative positioning for the overlapping floating card */}
           <div className="relative">
-            
-            {/* Soft Ambient Radial Blur Behind the Card */}
             <div className="absolute -inset-4 bg-gradient-to-tr from-sky-400/20 via-blue-400/15 to-purple-400/20 rounded-[40px] blur-2xl -z-10" />
 
             {/* Main Signature Card */}
@@ -341,10 +358,9 @@ export default function Bookings() {
               whileHover={{ y: -5, transition: { duration: 0.2 } }}
               className="w-72 sm:w-80 md:w-96 rounded-3xl p-4 sm:p-5 bg-white border border-gray-100 shadow-2xl shadow-blue-900/10 transition-all select-none"
             >
-              {/* Destination Cover Image */}
               <div
                 className="relative w-full h-44 sm:h-52 rounded-2xl overflow-hidden mb-4 group cursor-pointer"
-                onClick={() => setIsBookingModalOpen(true)}
+                onClick={() => openBookingModal({ destination: currentMainTrip.title, basePrice: currentMainTrip.price })}
               >
                 <Image
                   className="object-cover transition-transform duration-700 group-hover:scale-105"
@@ -355,10 +371,8 @@ export default function Bookings() {
                   priority
                 />
 
-                {/* Subtle gradient overlay for badge readability */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/20 pointer-events-none" />
                 
-                {/* Micro Live Status Tag */}
                 <div className="absolute top-3 left-3 bg-black/50 backdrop-blur-md text-white text-[10px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1.5 border border-white/20">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
                   <span>{currentMainTrip.statusText || "Verified Departure"}</span>
@@ -368,18 +382,16 @@ export default function Bookings() {
                   {currentMainTrip.formattedPrice}
                 </div>
 
-                {/* Bottom Quick-Action Overlay on Hover */}
                 <div className="absolute bottom-2.5 right-3 opacity-0 group-hover:opacity-100 transition-opacity bg-amber-500 text-white text-[10px] font-bold px-2.5 py-1 rounded-lg flex items-center gap-1 shadow-sm">
                   <span>Quick Book</span>
                   <FaPlaneUp className="text-[9px]" />
                 </div>
               </div>
 
-              {/* Card Meta Content */}
               <div>
                 <div className="flex items-center justify-between">
                   <h3
-                    onClick={() => setIsBookingModalOpen(true)}
+                    onClick={() => openBookingModal({ destination: currentMainTrip.title, basePrice: currentMainTrip.price })}
                     className="font-bold md:text-xl text-lg text-gray-900 hover:text-amber-600 transition-colors cursor-pointer"
                   >
                     {currentMainTrip.title}
@@ -393,7 +405,6 @@ export default function Bookings() {
                   {currentMainTrip.dates} | by {currentMainTrip.organizer}
                 </p>
 
-                {/* 3 Iconic Circular Action Badges with Interactive Micro-Tooltips */}
                 <div className="relative mt-4">
                   <div className="flex justify-start space-x-3">
                     <button
@@ -435,7 +446,6 @@ export default function Bookings() {
                       <FaAirbnb size={15} />
                     </button>
 
-                    {/* Share Button */}
                     <button
                       type="button"
                       onClick={handleShareClick}
@@ -447,7 +457,6 @@ export default function Bookings() {
                     </button>
                   </div>
 
-                  {/* Micro Tooltip Card for Badges */}
                   <AnimatePresence>
                     {activeBadgeTooltip && (
                       <motion.div
@@ -473,24 +482,23 @@ export default function Bookings() {
                   </AnimatePresence>
                 </div>
 
-                {/* Card Footer: Attendees Counter & Working Heart Wishlist */}
                 <div className="flex justify-between items-center mt-5 pt-3 border-t border-gray-100 text-xs">
                   <div className="items-center space-x-2 flex text-slate-600 font-medium">
                     <FaBuildingFlag className="text-slate-400" />
-                    <span>{currentMainTrip.goingCount + (liked ? 1 : 0)} people going</span>
+                    <span>{currentMainTrip.goingCount + (isTripFavorited ? 1 : 0)} people going</span>
                   </div>
 
                   <button
                     type="button"
                     onClick={handleLikeToggle}
                     className="p-1 rounded-full transition-transform active:scale-125 cursor-pointer"
-                    title={liked ? "Saved to favorites" : "Save to favorites"}
+                    title={isTripFavorited ? "Saved to favorites" : "Save to favorites"}
                     aria-label="Favorite this trip"
                   >
                     <FaHeart
                       size={18}
                       className={`transition-colors ${
-                        liked ? "text-rose-500 scale-110" : "text-gray-300 hover:text-rose-400"
+                        isTripFavorited ? "text-rose-500 scale-110" : "text-gray-300 hover:text-rose-400"
                       }`}
                     />
                   </button>
@@ -498,7 +506,7 @@ export default function Bookings() {
               </div>
             </motion.div>
 
-            {/* Iconic Jadoo Overlapping Floating Sub-Card ("Trip to Rome / Ongoing") with Interactive Swap */}
+            {/* Iconic Floating Sub-Card ("Trip to Rome / Ongoing") */}
             <motion.div
               layout
               initial={{ opacity: 0, y: 20 }}
@@ -539,7 +547,6 @@ export default function Bookings() {
                     </span>
                   </div>
 
-                  {/* Gradient Progress Bar with delicate pulse */}
                   <div className="w-full bg-slate-100 h-1.5 rounded-full mt-1.5 overflow-hidden">
                     <motion.div
                       initial={{ width: 0 }}
@@ -554,11 +561,10 @@ export default function Bookings() {
 
           </div>
 
-          {/* Interactive Trigger Button Below the Card */}
           <div className="mt-12 sm:mt-14 flex items-center gap-3">
             <button
               type="button"
-              onClick={() => setIsBookingModalOpen(true)}
+              onClick={() => openBookingModal({ destination: currentMainTrip.title, basePrice: currentMainTrip.price })}
               className="px-5 py-2.5 text-xs font-bold text-white bg-amber-500 hover:bg-amber-600 rounded-xl shadow-md shadow-amber-500/20 transition-all hover:-translate-y-0.5 cursor-pointer flex items-center gap-2"
             >
               <FaCalendarCheck />
@@ -574,7 +580,7 @@ export default function Bookings() {
         {isBookingModalOpen && (
           <div
             className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs"
-            onClick={() => setIsBookingModalOpen(false)}
+            onClick={closeBookingModal}
           >
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
@@ -584,17 +590,15 @@ export default function Bookings() {
               className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-7 shadow-2xl border border-gray-100 relative"
               onClick={(e) => e.stopPropagation()}
             >
-              {/* Close Button */}
               <button
                 type="button"
-                onClick={() => setIsBookingModalOpen(false)}
+                onClick={closeBookingModal}
                 className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 p-2 rounded-xl hover:bg-gray-100 transition-colors cursor-pointer"
                 aria-label="Close booking modal"
               >
                 <FaTimes />
               </button>
 
-              {/* Modal Header */}
               <div className="mb-5">
                 <span className="text-[11px] font-bold text-amber-600 uppercase tracking-widest block mb-1">
                   Fast & Guaranteed Confirmation
@@ -614,32 +618,32 @@ export default function Bookings() {
                   </div>
                   <h4 className="text-lg font-bold text-gray-900">Reservation Confirmed!</h4>
                   <p className="text-xs text-gray-600 max-w-xs mx-auto">
-                    Your itinerary voucher for <strong>{selectedDestination}</strong> has been issued. A concierge confirmation has been scheduled for your selected date.
+                    Your itinerary voucher for <strong>{bookingDraft.destination}</strong> has been issued and stored in your profile.
                   </p>
-                  <span className="inline-block text-[11px] font-mono font-bold text-slate-500 bg-slate-100 px-3 py-1 rounded-lg">
-                    BOOKING REF: #JD-{Math.floor(100000 + Math.random() * 900000)}
+                  <span className="inline-block text-[11px] font-mono font-bold text-slate-700 bg-slate-100 px-3 py-1 rounded-lg">
+                    BOOKING REF: #{confirmedBookingId}
                   </span>
                 </div>
               ) : (
                 <form onSubmit={handleFormSubmit} className="space-y-4 text-xs">
-                  {/* Destination selection */}
                   <div>
                     <label className="block text-[11px] font-semibold text-gray-700 mb-1">
                       Selected Itinerary
                     </label>
                     <select
-                      value={selectedDestination}
-                      onChange={(e) => setSelectedDestination(e.target.value)}
+                      value={bookingDraft.destination}
+                      onChange={(e) => updateBookingDraft({ destination: e.target.value })}
                       className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 font-medium focus:ring-1 focus:ring-amber-500 focus:outline-none"
                     >
                       <option value="Trip To Greece">Trip To Greece (14 Days) · $3,850</option>
                       <option value="Trip To Rome">Trip To Rome, Italy (10 Days) · $4,200</option>
                       <option value="Trip To Santorini">Santorini Sunset Tour (8 Days) · $4,800</option>
                       <option value="Trip To Tokyo">Tokyo & Kyoto Cultural Escape (14 Days) · $5,600</option>
+                      <option value="Paris & London Grand Tour">Paris & London Grand Tour (18 Days) · $5,200</option>
+                      <option value="Shanghai & Ancient Villages">Shanghai & Ancient Villages (12 Days) · $3,500</option>
                     </select>
                   </div>
 
-                  {/* Dates & Travelers Grid */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
                       <label className="block text-[11px] font-semibold text-gray-700 mb-1">
@@ -647,8 +651,8 @@ export default function Bookings() {
                       </label>
                       <input
                         type="date"
-                        value={selectedDate}
-                        onChange={(e) => setSelectedDate(e.target.value)}
+                        value={bookingDraft.departureDate}
+                        onChange={(e) => updateBookingDraft({ departureDate: e.target.value })}
                         className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 font-medium focus:ring-1 focus:ring-amber-500 focus:outline-none"
                         required
                       />
@@ -661,8 +665,8 @@ export default function Bookings() {
                       <div className="relative">
                         <FaUserFriends className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                         <select
-                          value={selectedGuests}
-                          onChange={(e) => setSelectedGuests(Number(e.target.value))}
+                          value={bookingDraft.guests}
+                          onChange={(e) => updateBookingDraft({ guests: Number(e.target.value) })}
                           className="w-full pl-9 pr-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 font-medium focus:ring-1 focus:ring-amber-500 focus:outline-none"
                         >
                           <option value={1}>1 Solo Explorer</option>
@@ -674,16 +678,15 @@ export default function Bookings() {
                     </div>
                   </div>
 
-                  {/* Promo Code Input */}
                   <div className="flex items-center gap-2">
                     <div className="relative flex-1">
                       <FaTag className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-[10px]" />
                       <input
                         type="text"
                         placeholder="Promo code (e.g. JADOO10)"
-                        value={promoCode}
+                        value={bookingDraft.promoCode}
                         onChange={(e) => {
-                          setPromoCode(e.target.value);
+                          updateBookingDraft({ promoCode: e.target.value });
                           setPromoError("");
                         }}
                         className="w-full pl-8 pr-3 py-1.5 bg-gray-50 border border-gray-200 rounded-xl text-gray-800 text-xs focus:ring-1 focus:ring-amber-500 focus:outline-none uppercase"
@@ -694,24 +697,23 @@ export default function Bookings() {
                       onClick={handleApplyPromo}
                       className="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-xl text-xs transition-colors cursor-pointer"
                     >
-                      {promoApplied ? "Applied ✓" : "Apply"}
+                      {bookingDraft.promoApplied ? "Applied ✓" : "Apply"}
                     </button>
                   </div>
                   {promoError && (
                     <p className="text-[10px] text-rose-500">{promoError}</p>
                   )}
-                  {promoApplied && (
+                  {bookingDraft.promoApplied && (
                     <p className="text-[10px] text-emerald-600 font-medium">✓ 10% promo discount applied to total</p>
                   )}
 
-                  {/* Pricing Breakdown Card */}
                   <div className="bg-gray-50 p-3.5 rounded-2xl border border-gray-100 space-y-1.5 text-[11px]">
                     <div className="flex justify-between text-gray-600">
-                      <span>Base Itinerary ({selectedGuests} {selectedGuests > 1 ? 'travelers' : 'traveler'})</span>
+                      <span>Base Itinerary ({bookingDraft.guests} {bookingDraft.guests > 1 ? 'travelers' : 'traveler'})</span>
                       <span className="font-semibold text-gray-900">${subtotal.toLocaleString()}</span>
                     </div>
                     <div className="flex justify-between text-emerald-600 font-medium">
-                      <span>{promoApplied ? "Promo Code (10% Off)" : "Alliance Group Discount"}</span>
+                      <span>{bookingDraft.promoApplied ? "Promo Code (10% Off)" : "Alliance Group Discount"}</span>
                       <span>-${discount.toLocaleString()}</span>
                     </div>
                     <div className="flex justify-between text-gray-600">
@@ -726,21 +728,21 @@ export default function Bookings() {
                     </div>
                   </div>
 
-                  {/* Actions */}
                   <div className="flex items-center justify-end gap-2 pt-2">
                     <button
                       type="button"
-                      onClick={() => setIsBookingModalOpen(false)}
+                      onClick={closeBookingModal}
                       className="px-4 py-2.5 text-xs font-semibold text-gray-600 hover:text-gray-900 rounded-xl transition-colors cursor-pointer"
                     >
                       Cancel
                     </button>
                     <button
                       type="submit"
-                      className="px-6 py-2.5 text-xs font-bold text-white bg-amber-500 hover:bg-amber-600 rounded-xl shadow-md shadow-amber-500/20 transition-all cursor-pointer flex items-center gap-1.5"
+                      disabled={isSubmitting}
+                      className="px-6 py-2.5 text-xs font-bold text-white bg-amber-500 hover:bg-amber-600 rounded-xl shadow-md shadow-amber-500/20 transition-all cursor-pointer flex items-center gap-1.5 disabled:opacity-75"
                     >
                       <FaCheck />
-                      <span>Confirm & Lock Rate</span>
+                      <span>{isSubmitting ? "Reserving..." : "Confirm & Lock Rate"}</span>
                     </button>
                   </div>
                 </form>

@@ -3,6 +3,7 @@
 import React, { useState, useMemo } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useTravel } from '@/app/context/TravelContext';
 import {
   FaHeart,
   FaRegHeart,
@@ -169,28 +170,19 @@ const DESTINATIONS: DestinationItem[] = [
 ];
 
 export default function DestinationsSection() {
+  const { isInWishlist, toggleWishlist, openBookingModal } = useTravel();
   const [selectedCategory, setSelectedCategory] = useState<CategoryFilter>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<SortOption>('featured');
-  const [wishlist, setWishlist] = useState<string[]>(['rome', 'santorini']);
   const [activeDestination, setActiveDestination] = useState<DestinationItem | null>(null);
-
-  const toggleWishlist = (id: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    setWishlist((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
-    );
-  };
 
   // Filter & Sort Logic
   const filteredDestinations = useMemo(() => {
     const list = DESTINATIONS.filter((dest) => {
-      // Category filter
       if (selectedCategory === 'europe' && dest.region !== 'europe') return false;
       if (selectedCategory === 'asia' && dest.region !== 'asia') return false;
       if (selectedCategory === 'trending' && !['Best Seller', 'Top Rated', 'Trending'].includes(dest.tag || '')) return false;
 
-      // Search query
       if (searchQuery.trim()) {
         const query = searchQuery.toLowerCase();
         const matchesName = dest.name.toLowerCase().includes(query);
@@ -200,7 +192,6 @@ export default function DestinationsSection() {
       return true;
     });
 
-    // Sorting
     const sorted = [...list];
     if (sortBy === 'price-low') {
       sorted.sort((a, b) => a.numericPrice - b.numericPrice);
@@ -213,6 +204,14 @@ export default function DestinationsSection() {
     return sorted;
   }, [selectedCategory, searchQuery, sortBy]);
 
+  const handleBookDestination = (dest: DestinationItem) => {
+    setActiveDestination(null);
+    openBookingModal({
+      destination: `Trip To ${dest.name}`,
+      basePrice: dest.numericPrice
+    });
+  };
+
   return (
     <div id="destinations-container" className="py-16 sm:py-12 md:py-10 lg:py-24 bg-yellow-50 md:bg-white relative">
       
@@ -220,7 +219,7 @@ export default function DestinationsSection() {
       <div className="absolute top-10 right-8 w-64 h-64 bg-amber-100/40 rounded-full blur-3xl pointer-events-none -z-0" />
       <div className="absolute bottom-10 left-8 w-72 h-72 bg-orange-100/30 rounded-full blur-3xl pointer-events-none -z-0" />
 
-      {/* Main Header (Preserves original typography & visual identity) */}
+      {/* Main Header */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -305,7 +304,7 @@ export default function DestinationsSection() {
         </div>
       </div>
 
-      {/* Destination Cards Grid (Exact signature card architecture, upgraded with professional interactions) */}
+      {/* Destination Cards Grid */}
       <div className="container mx-auto px-4 sm:px-12 md:px-16 lg:px-48">
         {filteredDestinations.length === 0 ? (
           <div className="text-center py-16 bg-white rounded-3xl border border-gray-100 p-8 shadow-sm">
@@ -323,7 +322,7 @@ export default function DestinationsSection() {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 md:gap-10">
             {filteredDestinations.map((destination, index) => {
-              const isWishlisted = wishlist.includes(destination.id);
+              const isWishlisted = isInWishlist(destination.id);
 
               return (
                 <motion.div
@@ -350,10 +349,8 @@ export default function DestinationsSection() {
                       className="rounded-t-3xl object-cover transition-transform duration-700 group-hover:scale-105"
                     />
 
-                    {/* Gradient Overlay for Top Legibility */}
                     <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/10 pointer-events-none" />
 
-                    {/* Top Row Badges: Tag + Wishlist Button */}
                     <div className="absolute top-4 left-4 right-4 flex items-center justify-between z-10">
                       {destination.tag ? (
                         <span className="text-[11px] font-bold text-white bg-black/40 backdrop-blur-md px-3 py-1 rounded-full border border-white/20">
@@ -365,7 +362,10 @@ export default function DestinationsSection() {
 
                       <button
                         type="button"
-                        onClick={(e) => toggleWishlist(destination.id, e)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleWishlist(destination.id);
+                        }}
                         className={`w-9 h-9 rounded-full flex items-center justify-center backdrop-blur-md transition-all shadow-sm ${
                           isWishlisted
                             ? 'bg-rose-500 text-white'
@@ -378,7 +378,6 @@ export default function DestinationsSection() {
                       </button>
                     </div>
 
-                    {/* Bottom Floating Rating on Image */}
                     <div className="absolute bottom-3 left-4 z-10 flex items-center gap-1.5 text-xs text-white bg-black/50 backdrop-blur-md px-2.5 py-1 rounded-full">
                       <FaStar className="text-amber-400 text-xs" />
                       <span className="font-bold">{destination.rating.toFixed(1)}</span>
@@ -386,10 +385,9 @@ export default function DestinationsSection() {
                     </div>
                   </div>
 
-                  {/* Card Bottom Body (Exact signature layout from Jadoo) */}
+                  {/* Card Bottom Body */}
                   <div className="p-5 sm:p-6 bg-white flex-1 flex flex-col justify-between">
                     <div>
-                      {/* Name & Price */}
                       <div className="flex justify-between items-start mb-2">
                         <h3 className="text-lg sm:text-xl font-bold text-gray-900 group-hover:text-amber-600 transition-colors">
                           {destination.name}
@@ -399,13 +397,11 @@ export default function DestinationsSection() {
                         </span>
                       </div>
 
-                      {/* Highlights Pill Preview */}
                       <p className="text-xs text-gray-500 line-clamp-1 mb-3">
                         {destination.highlights.join(' · ')}
                       </p>
                     </div>
 
-                    {/* Duration with Iconic Jadoo Navigation Arrow */}
                     <div className="pt-3 border-t border-gray-100 flex items-center justify-between text-xs text-gray-600">
                       <div className="flex items-center space-x-2">
                         <FaLocationArrow className="text-amber-500 text-xs -rotate-45" />
@@ -425,7 +421,7 @@ export default function DestinationsSection() {
         )}
       </div>
 
-      {/* Unique Quick Preview & Itinerary Modal */}
+      {/* Quick Preview & Itinerary Modal */}
       <AnimatePresence>
         {activeDestination && (
           <div
@@ -450,7 +446,6 @@ export default function DestinationsSection() {
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/30 to-transparent" />
                 
-                {/* Close Button */}
                 <button
                   type="button"
                   onClick={() => setActiveDestination(null)}
@@ -482,10 +477,8 @@ export default function DestinationsSection() {
                 </div>
               </div>
 
-              {/* Modal Body with Scrollable Content */}
+              {/* Modal Body */}
               <div className="p-6 overflow-y-auto space-y-5 text-xs text-gray-700 scrollbar-thin">
-                
-                {/* Quick Meta */}
                 <div className="grid grid-cols-3 gap-2 bg-gray-50 p-3 rounded-2xl border border-gray-100 text-center">
                   <div>
                     <span className="text-[10px] text-gray-400 uppercase font-semibold block">Duration</span>
@@ -510,7 +503,6 @@ export default function DestinationsSection() {
                   </div>
                 </div>
 
-                {/* Day-by-Day Highlight Timeline */}
                 <div>
                   <h4 className="font-bold text-gray-900 text-sm mb-3">
                     Curated Itinerary Breakdown
@@ -529,7 +521,6 @@ export default function DestinationsSection() {
                   </div>
                 </div>
 
-                {/* Included in this trip */}
                 <div>
                   <h4 className="font-bold text-gray-900 text-sm mb-2.5">
                     What&apos;s Included
@@ -556,14 +547,14 @@ export default function DestinationsSection() {
                   Close Preview
                 </button>
 
-                <a
-                  href="#bookings"
-                  onClick={() => setActiveDestination(null)}
-                  className="px-5 py-2.5 text-xs font-bold text-white bg-amber-500 hover:bg-amber-600 rounded-xl shadow-xs transition-colors flex items-center gap-1.5"
+                <button
+                  type="button"
+                  onClick={() => handleBookDestination(activeDestination)}
+                  className="px-5 py-2.5 text-xs font-bold text-white bg-amber-500 hover:bg-amber-600 rounded-xl shadow-xs transition-colors flex items-center gap-1.5 cursor-pointer"
                 >
                   <span>Book This Destination</span>
                   <FaArrowRight className="text-[10px]" />
-                </a>
+                </button>
               </div>
 
             </motion.div>

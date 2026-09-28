@@ -2,14 +2,44 @@
 
 import { useState } from "react";
 import Header from "@/app/components/header";
-import { FaEnvelope, FaPhone, FaMapMarkerAlt } from "react-icons/fa";
+import { FaEnvelope, FaPhone, FaMapMarkerAlt, FaExclamationCircle } from "react-icons/fa";
 
 export default function ContactPage() {
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    subject: "",
+    message: ""
+  });
+  const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
+  const [ticketId, setTicketId] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSent(true);
+    setErrorMessage("");
+    setLoading(true);
+
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData)
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        setSent(true);
+        setTicketId(data.ticketId || "JD-TKT-99214");
+      } else {
+        setErrorMessage(data.error || "Failed to deliver message. Please verify fields.");
+      }
+    } catch {
+      setErrorMessage("Network error occurred. Please try again later.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -72,58 +102,89 @@ export default function ContactPage() {
           {/* Contact Form */}
           <div className="bg-white p-8 rounded-3xl shadow-xl border border-gray-100">
             {sent ? (
-              <div className="text-center py-12">
-                <div className="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">
+              <div className="text-center py-12 space-y-3">
+                <div className="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl font-bold">
                   ✓
                 </div>
-                <h3 className="text-2xl font-bold text-gray-800 mb-2">Message Sent!</h3>
-                <p className="text-gray-600 text-sm">
+                <h3 className="text-2xl font-bold text-gray-800">Message Delivered!</h3>
+                <p className="text-gray-600 text-sm max-w-xs mx-auto">
                   Thank you for reaching out. A Jadoo travel specialist will contact you shortly.
                 </p>
+                <div className="pt-2">
+                  <span className="inline-block text-xs font-mono font-bold text-amber-800 bg-amber-50 px-3 py-1.5 rounded-lg border border-amber-200">
+                    TICKET REF: #{ticketId}
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSent(false);
+                    setFormData({ name: "", email: "", subject: "", message: "" });
+                  }}
+                  className="mt-4 px-4 py-2 text-xs font-semibold text-gray-600 hover:text-gray-900 border rounded-xl"
+                >
+                  Send Another Message
+                </button>
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-4">
+                {errorMessage && (
+                  <div className="p-3 bg-rose-50 border border-rose-200 text-rose-700 text-xs rounded-xl flex items-center gap-2">
+                    <FaExclamationCircle className="shrink-0" />
+                    <span>{errorMessage}</span>
+                  </div>
+                )}
+
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Your Name</label>
+                  <label className="block text-xs font-semibold text-gray-700 mb-1">Your Name</label>
                   <input
                     type="text"
                     required
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     placeholder="Jane Smith"
-                    className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                    className="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-yellow-400 text-sm"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+                  <label className="block text-xs font-semibold text-gray-700 mb-1">Email Address</label>
                   <input
                     type="email"
                     required
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                     placeholder="jane@example.com"
-                    className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                    className="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-yellow-400 text-sm"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Subject</label>
+                  <label className="block text-xs font-semibold text-gray-700 mb-1">Subject</label>
                   <input
                     type="text"
                     required
+                    value={formData.subject}
+                    onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
                     placeholder="Trip Inquiry / Custom Package"
-                    className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                    className="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-yellow-400 text-sm"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Message</label>
+                  <label className="block text-xs font-semibold text-gray-700 mb-1">Message</label>
                   <textarea
                     rows={4}
                     required
+                    value={formData.message}
+                    onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                     placeholder="Tell us about where you want to travel, dates, and number of guests..."
-                    className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                    className="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-yellow-400 text-sm"
                   ></textarea>
                 </div>
                 <button
                   type="submit"
-                  className="w-full py-3 bg-yellow-400 hover:bg-yellow-500 text-white font-semibold rounded-xl shadow-md transition-colors"
+                  disabled={loading}
+                  className="w-full py-3 bg-yellow-400 hover:bg-yellow-500 disabled:opacity-70 text-white font-bold rounded-xl shadow-md transition-colors text-sm cursor-pointer"
                 >
-                  Send Message
+                  {loading ? "Sending..." : "Send Message"}
                 </button>
               </form>
             )}

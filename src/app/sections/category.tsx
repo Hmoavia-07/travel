@@ -18,6 +18,7 @@ import {
   faTimes,
   faTicketAlt
 } from "@fortawesome/free-solid-svg-icons";
+import { useTravel } from "@/app/context/TravelContext";
 
 interface ServiceData {
   id: string;
@@ -38,6 +39,7 @@ interface ServiceData {
 }
 
 export default function Category() {
+  const { openBookingModal, showToast } = useTravel();
   const [activeTab, setActiveTab] = useState<string>("weather");
   const [activeWeatherCity, setActiveWeatherCity] = useState<'rome' | 'paris' | 'tokyo' | 'bali'>('rome');
   const [flightOrigin, setFlightOrigin] = useState('New York (JFK)');
@@ -157,7 +159,21 @@ export default function Category() {
   const handleCustomPlanSave = (e: React.FormEvent) => {
     e.preventDefault();
     setCustomPlanSaved(true);
+    showToast(`Custom ${customDays} ${customStyle} blueprint saved to your session!`, "success");
     setTimeout(() => setCustomPlanSaved(false), 2500);
+  };
+
+  const handleBookWithService = () => {
+    setIsModalOpen(false);
+    openBookingModal({
+      destination: currentService.id === "weather"
+        ? `Trip To ${activeWeatherCity.toUpperCase()} (Optimal Climate)`
+        : currentService.id === "flights"
+        ? "Round-Trip Flight + Resort Package"
+        : currentService.id === "events"
+        ? "Cultural VIP Events Pass & Tour"
+        : `Custom ${customDays} ${customStyle} Itinerary`
+    });
   };
 
   return (
@@ -197,7 +213,6 @@ export default function Category() {
                     : "bg-white/80 hover:bg-white border-slate-200/80 hover:border-amber-300 shadow-sm hover:shadow"
                 }`}
               >
-                {/* Active Indicator Top Accent Bar */}
                 {isActive && (
                   <motion.div
                     layoutId="activeCategoryIndicator"
@@ -207,7 +222,6 @@ export default function Category() {
                 )}
 
                 <div>
-                  {/* Top Bar: Icon + Category Number */}
                   <div className="flex items-center justify-between mb-3.5">
                     <div className="relative w-11 h-11 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center p-2 group-hover:scale-105 transition-transform">
                       {service.image ? (
@@ -229,7 +243,6 @@ export default function Category() {
                     </span>
                   </div>
 
-                  {/* Title & Concise Summary */}
                   <h3 className={`text-base font-bold transition-colors ${isActive ? 'text-amber-600' : 'text-slate-800 group-hover:text-slate-900'}`}>
                     {service.title}
                   </h3>
@@ -238,7 +251,6 @@ export default function Category() {
                   </p>
                 </div>
 
-                {/* Bottom Row: Key Tag + Action Cue */}
                 <div className="pt-3 mt-3 border-t border-slate-100 flex items-center justify-between text-[11px]">
                   <span className="text-slate-400 font-medium">
                     {service.stats}
@@ -257,7 +269,7 @@ export default function Category() {
           })}
         </div>
 
-        {/* Unique Feature: Interactive Live Service Console */}
+        {/* Live Service Console */}
         <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-4 sm:p-6 transition-all">
           <div className="flex flex-wrap items-center justify-between gap-3 pb-4 mb-4 border-b border-slate-100">
             <div className="flex items-center gap-2">
@@ -280,9 +292,7 @@ export default function Category() {
             </div>
           </div>
 
-          {/* Dynamic Console Tool based on Active Service */}
           <AnimatePresence mode="wait">
-            
             {/* 1. WEATHER RADAR CONSOLE */}
             {activeTab === "weather" && (
               <motion.div
@@ -419,7 +429,13 @@ export default function Category() {
                     </div>
                     <div className="mt-2.5 pt-2 border-t border-slate-200/60 flex items-center justify-between text-[11px]">
                       <span className="font-medium text-emerald-600">{evt.access}</span>
-                      <span className="text-amber-600 font-semibold">Reserve Pass</span>
+                      <button
+                        type="button"
+                        onClick={() => openBookingModal({ destination: `${evt.title} (${evt.location})` })}
+                        className="text-amber-600 font-semibold hover:underline cursor-pointer"
+                      >
+                        Reserve Pass
+                      </button>
                     </div>
                   </div>
                 ))}
@@ -473,7 +489,7 @@ export default function Category() {
                       {customPlanSaved ? (
                         <>
                           <FontAwesomeIcon icon={faCheck} />
-                          <span>Plan Generated!</span>
+                          <span>Plan Saved!</span>
                         </>
                       ) : (
                         <>
@@ -558,13 +574,13 @@ export default function Category() {
                 >
                   Close
                 </button>
-                <a
-                  href="#bookings"
-                  onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 text-xs font-semibold text-white bg-amber-500 hover:bg-amber-600 rounded-lg shadow-xs transition-colors"
+                <button
+                  type="button"
+                  onClick={handleBookWithService}
+                  className="px-4 py-2 text-xs font-semibold text-white bg-amber-500 hover:bg-amber-600 rounded-lg shadow-xs transition-colors cursor-pointer"
                 >
                   Book with This Service
-                </a>
+                </button>
               </div>
             </motion.div>
           </div>
