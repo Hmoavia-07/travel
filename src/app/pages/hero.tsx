@@ -30,8 +30,8 @@ export default function Homepage() {
                 Find out more
               </button>
             <button className="w-[110px] md:w-[140px]">
-             <img src="./images/Play Demo.png" alt="" />
-              </button>
+              <Image src="/images/Play Demo.png" alt="Play Demo" width={140} height={40} className="w-auto h-auto" />
+            </button>
             </div>
           </div>
 

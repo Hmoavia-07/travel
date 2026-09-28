@@ -2,6 +2,7 @@
 
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState } from "react"; // For mobile menu toggle
 
 export default function Header() {
@@ -18,7 +19,7 @@ export default function Header() {
 
           {/* Logo */}
           <Link href="/" className="w-[90px] sm:w-[140px] md:w-[145px] lg:w-[170px]">
-            <img src="../images/logo.png" alt="" />
+            <Image src="/images/logo.png" alt="Jadoo" width={170} height={40} className="w-auto h-auto" priority />
           </Link>
 
           {/* Hamburger menu for mobile */}

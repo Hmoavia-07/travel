@@ -1,0 +1,8 @@
+{
+  "name": "Jadoo Travel",
+  "description": "Travel agency landing page showcasing top destinations, categories, bookings, and customer feedback.",
+  "permissions": [],
+  "capabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
